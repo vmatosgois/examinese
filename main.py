@@ -1,6 +1,6 @@
-import yaml
+# import yaml
 from table2ascii import *
-from kdigo import *
+# from kdigo import *
 from variaveis import *
 import datefinder #Atentar para datas incompletas, não contempladas por essa biblioteca
 from datetime import datetime
@@ -8,19 +8,20 @@ from fuzzywuzzy import process # tem que baixar isso aqui UserWarning: Using slo
 import toolboxy as tb
 
 # Carregar valores de referência base para o programa comparar
-try:
-    with open("vr.yml", "r", encoding='utf-8') as ymlfile:
-        vr = yaml.safe_load(ymlfile)
-except:
-    vr = default
-    with open('vr.yml', 'w', encoding='utf-8') as ymlfile:
-        yaml.dump(vr, ymlfile, allow_unicode=True)
+# def default():
+#     try:
+#         with open("vr.yml", "r", encoding='utf-8') as ymlfile:
+#             vr = yaml.safe_load(ymlfile)
+#     except:
+#         vr = default
+#         with open('vr.yml', 'w', encoding='utf-8') as ymlfile:
+#             yaml.dump(vr, ymlfile, allow_unicode=True)
 
-# Salvar alterações de valores de referência
-def salvar(variavel=vr, nomedoarquivo='vr.yml'):
+#     # Salvar alterações de valores de referência
+#     def salvar(variavel=vr, nomedoarquivo='vr.yml'):
 
-    with open(nomedoarquivo, 'w', encoding='utf-8') as ymlfile:
-        yaml.dump(variavel, ymlfile, allow_unicode=True)
+#         with open(nomedoarquivo, 'w', encoding='utf-8') as ymlfile:
+#             yaml.dump(variavel, ymlfile, allow_unicode=True)
 
 
 def boot():
@@ -256,28 +257,28 @@ def doc(sorted):
         list: Corpo da tabela
     """
     
-    print(sorted)
+    # print(sorted)
     # Função responsável por comparar os exames com seus valores de referência cadastrados
     high = '↑'
     low = '↓'
     
     # Acrescenta os indicadores de alteração
     
-    for title in default.keys():
-        if title in sorted:
-            for index, value in enumerate(sorted[title]):
-                if type(value) == tuple: # Loop que verifica tuplas
-                    a, b = value
-                    percen = min(float(a), float(b))
-                    if percen > float(default[title][-1]):
-                        sorted[title][index] = str(sorted[title][index]) + high
-                    elif len(default[title]) > 1 and percen < float(default[title][0]):
-                        sorted[title][index] = str(sorted[title][index]) + low
-                    continue
-                if value != '-' and float(value) > float(default[title][-1]): # Loop que verifica outros exames
-                    sorted[title][index] = str(sorted[title][index]) + high
-                elif value != '-' and len(default[title]) > 1 and float(value) < float(default[title][0]):
-                    sorted[title][index] = str(sorted[title][index]) + low
+    # for title in default.keys():
+    #     if title in sorted:
+    #         for index, value in enumerate(sorted[title]):
+    #             if type(value) == tuple: # Loop que verifica tuplas
+    #                 a, b = value
+    #                 percen = min(float(a), float(b))
+    #                 if percen > float(default[title][-1]):
+    #                     sorted[title][index] = str(sorted[title][index]) + high
+    #                 elif len(default[title]) > 1 and percen < float(default[title][0]):
+    #                     sorted[title][index] = str(sorted[title][index]) + low
+    #                 continue
+    #             if value != '-' and float(value) > float(default[title][-1]): # Loop que verifica outros exames
+    #                 sorted[title][index] = str(sorted[title][index]) + high
+    #             elif value != '-' and len(default[title]) > 1 and float(value) < float(default[title][0]):
+    #                 sorted[title][index] = str(sorted[title][index]) + low
 
     
     # Converte o dicionário de exames em uma lista de listas
@@ -329,5 +330,5 @@ if __name__ == '__main__':
     #spliter()
     #processar_datas()
     # Backup:
-    tb.backup(file='main.py', output_path='backups/security_copies')
+    #tb.backup(file='main.py', output_path='backups/security_copies')
     ...
