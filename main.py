@@ -1,27 +1,104 @@
-# import yaml
 from table2ascii import *
-# from kdigo import *
-from variaveis import *
 import datefinder #Atentar para datas incompletas, não contempladas por essa biblioteca
 from datetime import datetime
-from fuzzywuzzy import process # tem que baixar isso aqui UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning   warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
+from fuzzywuzzy import process # python-Levenshtein / rapidfuzz?
 import toolboxy as tb
 
-# Carregar valores de referência base para o programa comparar
-# def default():
-#     try:
-#         with open("vr.yml", "r", encoding='utf-8') as ymlfile:
-#             vr = yaml.safe_load(ymlfile)
-#     except:
-#         vr = default
-#         with open('vr.yml', 'w', encoding='utf-8') as ymlfile:
-#             yaml.dump(vr, ymlfile, allow_unicode=True)
+# Variaveis pré-declaradas
 
-#     # Salvar alterações de valores de referência
-#     def salvar(variavel=vr, nomedoarquivo='vr.yml'):
+lista_de_datas = []
+lista_remover = list()
+master = dict()
 
-#         with open(nomedoarquivo, 'w', encoding='utf-8') as ymlfile:
-#             yaml.dump(variavel, ymlfile, allow_unicode=True)
+espelho = { 'Hm': ['Hm'],
+            'Hb': ['Hb'],
+            'Ht': ['Ht'],
+            'VCM': ['VCM', 'VGM'],
+            'HCM': ['HCM', 'HGM'],
+            'CHCM': ['CHCM'],
+            'RDW': ['RDW'],
+            'Reticulócitos': ['Reticulócitos', 'Reti'],
+            'Leucócitos': ['Leucócitos', 'Leuco'],
+            'Blastos': ['Blastos'],
+            'Promielócitos': ['Promielócitos'],
+            'Mielócitos': ['Mielócitos'],
+            'Metamielócitos': ['Metamielócitos'],
+            'Bastões': ['Bastões', 'Bast'],
+            'Segmentados': ['Segmentados', 'Neut Segmentados', 'Neut', 'Neutrófilos'],
+            'Eosinófilos': ['Eosinófilos', 'Eos', 'Eosi'], 
+            'Linfócitos': ['Linfócitos', 'Linf', 'Linfo'],
+            'Monócitos': ['Monócitos', 'Mono', 'Mon'],
+            'Basófilos': ['Basófilos', 'Baso', 'Bas'],
+            'Linf._Atípicos': ['Atípicos'],
+            'Plaquetas': ['Plaquetas', 'Plaq', 'Pqt'],
+            'LDH': ['LDH', 'DHL'],
+            'VHS': ['VHS', 'Hemossedimentação', 'Hemosse'],
+            'PCR': ['PCR'],
+            'Colest._Total': ['CT', 'Colesterol Total', 'ColesT', 'Col total'],
+            'HDL': ['Hdl'],
+            'LDL': ['Ldl'], 
+            'Triglicérides': ['TGL', 'Triglicérides', 'Trigli'],
+            'CPK': ['CPK'],
+            'CPK-MB': ['CPKMB', 'CKMB'],
+            'Troponina': ['Troponina', 'Tropo'],
+            'BNF': ['BNF'],
+            'Ferro': ['Ferro', 'Fe'],
+            'Ferritina': ['Ferritina'],
+            'Sat._Transf.': ['Transferrina', 'Transfer'],
+            'TIBIC': ['TIBIC'],
+            'B12': ['B12'],
+            'Ác._Fólico': ['Fólico', 'Ácido Fólico'],
+            'Creatinina': ['Creatinina', 'Creat', 'Cr'],
+            'Uréia': ['Ureia'],
+            'Clearance': ['CKDEPI', 'Glomerular', 'Clearance'],
+            'Ácido_Úrico': ['Ácido Úrico', 'Úrico'],
+            'Sódio': ['Na', 'Sódio'],
+            'Potássio': ['K', 'Potássio'],
+            'Fósforo': ['P', 'Fósforo'],
+            'Cálcio_Sérico': ['Cálcio Sérico', 'Ca Sérico', 'Cálcio', 'Ca'],
+            'Cálcio_Ionizável': ['Cálcio Ionizável', 'Ca Ionizável'],
+            'Magnésio': ['Mg', 'Magnésio'],
+            'Cloro': ['Cl', 'Cloro'],
+            'Proteínas': ['Proteínas', 'Ptn', 'Prot'],
+            'Albumina': ['Albumina', 'Alb', 'Albu'],
+            'Globulina': ['Globulina', 'Glob', 'Globu'],
+            'Relação_A/G': ['a/g'],
+            'Bili_Total': ['Bt', 'Bilirrubina Total'],
+            'Bili_Direta': ['Bd', 'Bilirrubina Direta'],
+            'Bili_Indireta': ['Bi', 'Bilirrubina Indireta'],
+            'TGO_(AST)': ['TGO', 'AST'],
+            'TGP_(ALT)': ['TGP', 'ALT'],
+            'Fosfatase_Alc.': ['FA', 'Fosfatase Alcalina'],
+            'Gama-GT': ['GGT', 'GamaGT'],
+            'Amilase': ['Amilase'],
+            'Lipase': ['Lipase'],
+            'INR': ['INR', 'RNI'],
+            'TTPA': ['TTPA'],
+            'Ratio': ['Ratio'],
+            'TAP': ['TAP'],
+            'TS': ['TS', 'Sangramento'],
+            'TC': ['TC', 'Coagulação'],
+            'Glicemia_Jejum': ['GJ', 'Glicemia', 'Jejum', 'Glicemia de Jejum', 'Glicose'],
+            'Glicemia_Pós-P': ['GPP', 'Prandial'],
+            'Glicada': ['Hemoglobina Glicada', 'HBA1C', 'Glicada'], 
+            'TSH': ['TSH'],
+            'T4_Livre': ['T4 Livre', 'T4L'],
+            'Vitamina_D': ['VitD', '25OHD', 'Vitamina D', 'VitD-Direta']
+            }
+
+merger = {'Sérico': ['Sérico', 'Serico', 'Seri'],
+          'Ionizável': ['Ionizável', 'Ion', 'Ionizavel'],
+          'CT': ['CT'],
+          'Total': ['Total'],
+          'Livre:': ['Livre'],
+          'Ureia': ['Ureia', 'Ur'],
+          'Úrico': ['Urico', 'Uric'],
+          'Ultra': ['Ultra'],
+          'Urinário': ['Urinário', 'Urinária'],
+          'Direta': ['Direta', 'Dir', 'Dir'],
+          'Indireta': ['Indireta', 'Indi'],
+          'VitD': ['VitD']
+          }
 
 
 def boot():
@@ -248,47 +325,21 @@ def sort(exams):
 
 
 def doc(sorted):
-    """Compara exames com seus valores de referência cadastrados
+    """Reorganiza o dicionário e converte em lista no formato para o corpo da tabela
 
     Args:
-        sorted (dict): Exames e valores a serem comparados
+        sorted (dict): Exames e valores
 
     Returns:
         list: Corpo da tabela
     """
-    
-    # print(sorted)
-    # Função responsável por comparar os exames com seus valores de referência cadastrados
-    high = '↑'
-    low = '↓'
-    
-    # Acrescenta os indicadores de alteração
-    
-    # for title in default.keys():
-    #     if title in sorted:
-    #         for index, value in enumerate(sorted[title]):
-    #             if type(value) == tuple: # Loop que verifica tuplas
-    #                 a, b = value
-    #                 percen = min(float(a), float(b))
-    #                 if percen > float(default[title][-1]):
-    #                     sorted[title][index] = str(sorted[title][index]) + high
-    #                 elif len(default[title]) > 1 and percen < float(default[title][0]):
-    #                     sorted[title][index] = str(sorted[title][index]) + low
-    #                 continue
-    #             if value != '-' and float(value) > float(default[title][-1]): # Loop que verifica outros exames
-    #                 sorted[title][index] = str(sorted[title][index]) + high
-    #             elif value != '-' and len(default[title]) > 1 and float(value) < float(default[title][0]):
-    #                 sorted[title][index] = str(sorted[title][index]) + low
-
     
     # Converte o dicionário de exames em uma lista de listas
     corpo = [[name] + values for name, values in sorted.items()]
     
     return corpo
 
-def trimmer(): 
-    ...
-    # Essa função vai deixar a apresentação mais bonitinha, deixar só a primeira letra maiúscula, retirar os _ e deixar na ordem que a gente quer
+
 
 def gerartabela(corpo, topo):
     """Gera a tabela final em ASCII.
@@ -322,13 +373,11 @@ def main():
     sorted = sort(exams)
     corpo = doc(sorted)
     gerartabela(corpo, topo)
-    #print(f"{raw} \n\n\n {merged} \n\n\n {texto} \n\n\n {master} \n\n\n {exams} \n\n\n {corpo}")
-    #print(master, sorted)
+
     
 if __name__ == '__main__':
+    tb.requirements()
     print(tb.elapsed_clocktime(main))
-    #spliter()
-    #processar_datas()
     # Backup:
     #tb.backup(file='main.py', output_path='backups/security_copies')
     ...

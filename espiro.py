@@ -24,7 +24,7 @@ def main():
          sg.Input(key='FEV1/CVF PREV', size=5)],
         [sg.Text('PRÉ FEF 25-75%'), sg.Input(key='FEF2575', size=5),
          sg.Text('PÓS FEF 25-75%'), sg.Input(key='POSFEF2575', size=5)],
-        [sg.Checkbox('Laudar?')],
+        #[sg.Checkbox('Laudar?')],
         [sg.Button('Salvar')],
         [sg.Text(key='-SAÍDA-')]
     ]
@@ -43,7 +43,7 @@ def main():
         if eventos == 'Salvar':
             print(valores)
             sg.easy_print(tabela())
-            print(tabela())
+            # print(tabela())
 
 
 def tabela():
