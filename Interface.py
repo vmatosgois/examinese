@@ -106,34 +106,39 @@ class App(customtkinter.CTk):
         
         self.lab_frame = customtkinter.CTkFrame(self, corner_radius= 0, fg_color='transparent')
         self.lab_frame.grid_columnconfigure(0, weight=1)
-        self.lab_frame.grid_rowconfigure((1), weight=1)
+        self.lab_frame.grid_rowconfigure((2), weight=1)
         
-        self.titulo = customtkinter.CTkLabel(self.lab_frame,
-                                             text= 'Formatação de exames \n Para começar, certifique-se de que os exames estão precedidos \
+        self.titulo = customtkinter.CTkLabel(self.lab_frame, text= 'Formatação de exames', font=customtkinter.CTkFont(size=20, weight='bold'))
+        self.titulo.grid(row= 0, column= 0, padx = 20, pady = 20, sticky='nsew')
+        
+        self.description = customtkinter.CTkLabel(self.lab_frame, font=customtkinter.CTkFont(size=16),
+                                                  text= 'Para começar, certifique-se de que os exames estão precedidos \
 de data no formato "dia/mês/ano"\nPor exemplo: 01/01/01 ou 01/01/2001.\n\
-Insira seus exames no campo abaixo', font=customtkinter.CTkFont(size=16, weight='bold'))
-        self.titulo.grid(row= 0, column= 0, padx = 20, pady = (20,0), sticky='nsew')
+Insira seus exames no campo abaixo')
+        self.description.grid(row=1, column=0, padx=20, sticky= 'nsew')
         
         self.textbox = customtkinter.CTkTextbox(self.lab_frame,
                                border_width=2,
                                corner_radius=10,
                                font=customtkinter.CTkFont(size=14))
-        self.textbox.grid(row=1, column=0, padx=(20, 20), pady=(20, 20), sticky="nsew") 
+        self.textbox.grid(row=2, column=0, padx=(20, 20), pady=(20, 0), sticky="nsew") 
 
         self.svcopia = customtkinter.CTkCheckBox(self.lab_frame, text='Salvar uma cópia dos resultados')
-        self.svcopia.grid(row=2, column=0, pady=(20, 0), padx=20, sticky="s")
+        self.svcopia.grid(row=3, column=0, pady=(20, 0), padx=20, sticky="s")
 
         self.concluir = customtkinter.CTkButton(self.lab_frame, text='Concluir', fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"))
-        self.concluir.grid(row=3, column= 0, padx=(20, 20), pady=(20, 20), sticky="ns")
+        self.concluir.grid(row=4, column= 0, padx=(20, 20), pady=(20, 20), sticky="ns")
 
         # Espiro
         
         self.espiro_frame = customtkinter.CTkFrame(self, corner_radius= 0, fg_color='transparent')
         
         # Calculadoras
+        
         self.calc_frame = customtkinter.CTkFrame(self, corner_radius= 0, fg_color='transparent')
         
         # Ajuda
+        
         self.help_frame = customtkinter.CTkFrame(self, corner_radius= 0, fg_color='transparent')
 
         # Valores padrão
