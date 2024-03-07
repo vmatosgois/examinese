@@ -4,6 +4,7 @@ import customtkinter as ctk
 import os
 import main as soft
 import kdigo
+import webbrowser
 from PIL import Image
 
 ctk.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
@@ -16,13 +17,31 @@ class App(ctk.CTk):
         # janela
         self.title("Examine-SE")
         self.geometry(f"{1100}x{580}")
+        
+        # Try this method: Mudança de ícone
+
+        # For root window:
+
+        # import os
+        # from PIL import ImageTk
+        # ...
+
+        # self.iconpath = ImageTk.PhotoImage(file=os.path.join("assets","logo.png"))
+        # self.wm_iconbitmap()
+        # self.iconphoto(False, self.iconpath)
+        # For toplevels:
+
+        # self.wm_iconbitmap()
+        # self.after(300, lambda: self.iconphoto(False, self.iconpath))
 
         # Grid
+        
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure((2, 3), weight=0)
         self.grid_rowconfigure((0), weight=1)
 
         # Imagens
+        
         image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
         self.home = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "Home_preta.png")),
                                                  dark_image=Image.open(os.path.join(image_path, "Home_branca.png")), size=(25, 25))
@@ -62,7 +81,7 @@ class App(ctk.CTk):
                                                    image=self.espiro, anchor='w', command=self.espiro_button_action)
         self.espiro_button.grid(row=3, column=0, padx=5, pady=2, sticky= 'ew')
         
-        self.calc_button = ctk.CTkButton(self.sidebar_frame, corner_radius=0, height= 30, border_spacing= 10, text='Calculadoras',
+        self.calc_button = ctk.CTkButton(self.sidebar_frame, corner_radius=0, height= 30, border_spacing= 10, text='CKD-EPI',
                                                    fg_color='transparent', text_color=('gray10', 'gray90'), hover_color=('gray70', 'gray30'),
                                                    image=self.calc, anchor='w', command=self.calc_button_action)
         self.calc_button.grid(row=4, column=0, padx=5, pady=2, sticky= 'ew')
@@ -126,7 +145,7 @@ Insira seus exames no campo abaixo')
         self.svcopia_lab = ctk.CTkCheckBox(self.lab_frame, text='Salvar uma cópia dos resultados')
         self.svcopia_lab.grid(row=3, column=0, pady=(20, 0), padx=20, sticky="s")
 
-        self.lab_concluir = ctk.CTkButton(self.lab_frame, text='Concluir', fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"))
+        self.lab_concluir = ctk.CTkButton(self.lab_frame, text='Concluir', fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), hover_color=('gray70', 'gray30'))
         self.lab_concluir.grid(row=4, column= 0, padx=(20, 20), pady=(20, 20), sticky="ns")
 
         # Espiro
@@ -218,26 +237,82 @@ Insira seus exames no campo abaixo')
         self.svcopia_espiro = ctk.CTkCheckBox(self.espiro_subframe5, text='Salvar uma cópia dos resultados')
         self.svcopia_espiro.grid(row=0, column=1, pady=(20, 0), padx=20, sticky="s")
         
-        self.espiro_concluir = ctk.CTkButton(self.espiro_subframe5, text='Concluir', fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"))
+        self.espiro_concluir = ctk.CTkButton(self.espiro_subframe5, text='Concluir', fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), hover_color=('gray70', 'gray30'))
         self.espiro_concluir.grid(row=1, column= 1, padx=(20, 20), pady=(20, 20), sticky="ns")
         
-        # Calculadoras
+        # Calculadoras, que vai ser só o ckdepi
         
         self.calc_frame = ctk.CTkFrame(self, corner_radius= 0, fg_color='transparent')
+        self.calc_frame.grid_columnconfigure((0,1,2), weight=1)
+        
+        self.calc_label = ctk.CTkLabel(self.calc_frame, text= 'Cálculo de função renal', font=ctk.CTkFont(size=20, weight='bold'))
+        self.calc_label.grid(row= 0, column= 1, padx = 20, pady = 20, sticky='nsew')
+        self.calc_sublabel = ctk.CTkLabel(self.calc_frame, font=ctk.CTkFont(size=16),
+                                                  text= 'Preencha os campos correspondentes e clique em "Concluir".')
+        self.calc_sublabel.grid(row=1, column=1, padx=20, pady=(0,10), sticky= 'nsew')
+        
+        self.calc_subframe = ctk.CTkFrame(self.calc_frame, corner_radius=5)
+        self.calc_subframe.grid(row= 2, column= 1, padx= 20, pady= 10)
+        
+        self.idade_label = ctk.CTkLabel(self.calc_subframe, text='Idade:', font=ctk.CTkFont(size=14))
+        self.idade_label.grid(row= 2, column=1, padx= 12, sticky='nws')
+        self.idade_entry = ctk.CTkEntry(self.calc_subframe, width=170, corner_radius= 10)
+        self.idade_entry.grid(row= 3, column= 1, padx= 10, pady= (0,5), sticky='nw')
+        
+        self.sex_label = ctk.CTkLabel(self.calc_subframe, text='Sexo:', font=ctk.CTkFont(size=14))
+        self.sex_label.grid(row= 4, column=1, padx= 12, sticky='nws')
+        self.radio_var = tkinter.StringVar(value=None)
+        self.radiobutton_frame = ctk.CTkFrame(self.calc_subframe, fg_color='transparent')
+        self.radiobutton_frame.grid(row=5, column=1, sticky="nsew")
+        self.sex_button_1 = ctk.CTkRadioButton(master=self.radiobutton_frame, radiobutton_height= 20, radiobutton_width= 20, border_width_checked= 10, text= 'Masculino', variable=self.radio_var, value='H', font=ctk.CTkFont(size=14))
+        self.sex_button_1.grid(row=1, column=1, pady=10, padx=10, sticky="n")
+        self.sex_button_2 = ctk.CTkRadioButton(master=self.radiobutton_frame, radiobutton_height= 20, radiobutton_width= 20, border_width_checked= 10, text= 'Feminino', variable=self.radio_var, value='M', font=ctk.CTkFont(size=14))
+        self.sex_button_2.grid(row=2, column=1, pady=10, padx=10, sticky="n")
+        self.sex_button_3 = ctk.CTkRadioButton(master=self.radiobutton_frame, radiobutton_height= 20, radiobutton_width= 20, border_width_checked= 10, text= 'None', variable=self.radio_var, value=None, font=ctk.CTkFont(size=14))
+        
+        self.creat_label = ctk.CTkLabel(self.calc_subframe, text='Creatinina Sérica (mg/dL):', font=ctk.CTkFont(size=14))
+        self.creat_label.grid(row= 6, column=1, padx= 12, sticky='nws')
+        self.creat_entry = ctk.CTkEntry(self.calc_subframe, width=170, corner_radius= 10)
+        self.creat_entry.grid(row= 7, column= 1, padx= 10, pady= (0,5), sticky='nw')
+        
+        self.calc_concluir = ctk.CTkButton(self.calc_frame, text='Concluir', fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), hover_color=('gray70', 'gray30'))
+        self.calc_concluir.grid(row=3, column= 1, padx=(20, 20), pady=(10, 20), sticky="ns")
+        
+        self.ckdepi_var = tkinter.Variable(value= 0)
+        self.ckdepi_result = ctk.CTkTextbox(self.calc_frame, fg_color='transparent', width= 250, state= 'normal',border_width=0, corner_radius= 0,font=ctk.CTkFont(size=16))
+        self.ckdepi_result.insert(0.0, text=f'Resultado:\n {self.ckdepi_var} {kdigo.unidade}')
+        self.ckdepi_result.configure(state='disabled')
+        self.ckdepi_result.grid(row= 4, column=1, padx=20, sticky='n')
         
         # Ajuda
         
         self.help_frame = ctk.CTkFrame(self, corner_radius= 0, fg_color='transparent')
+        self.help_frame.columnconfigure(3, weight= 1)
+        
+        self.help_label = ctk.CTkLabel(self.help_frame, text= 'Dúvidas, sugestões e reclamações', font=ctk.CTkFont(size=20, weight='bold'))
+        self.help_label.grid(row= 0, column = 3, padx= 20, pady= 20, sticky='n')
+        self.help_sublabel = ctk.CTkLabel(self.help_frame,
+                                            text= 'Caso deseje relatar erros, sugerir melhorias e/ou entrar em contato\ncom o desenvolvedor responsável, utilize uma das opções abaixo.',
+                                            font=ctk.CTkFont(size=16))
+        self.help_sublabel.grid(row=1, column= 3, padx=20, pady= (0,20), sticky='n')
+        
+        self.info_text = ctk.CTkTextbox(self.help_frame, height= 200, fg_color='transparent', state= 'normal',border_width=0, corner_radius= 0,font=ctk.CTkFont(size=16))
+        self.info_text.insert(0.0,
+                              text='Informações para contato:\n\nVictor Matos:\n\nTelefone (Whatsapp): (79) 99808-0327\nEmail: vmatosgois@academico.ufs.br\n\nCaso esteja conectado à internet, pode ser utilizado o formulário abaixo:')
+        self.info_text.configure(state='disabled')
+        self.info_text.grid(row= 2, column=3, padx=20, sticky='nsew')
+        
+        self.button_forms = ctk.CTkButton(self.help_frame, text= 'Clique aqui para entrar em contato via Google Forms',fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), hover_color=('gray70', 'gray30'), font=ctk.CTkFont(size=16), command=self.abrir_link)
+        self.button_forms.grid(row= 3, column= 3, sticky= 'n')        
 
         # Valores padrão
-        self.espiro_button.configure(state="enabled")
         self.svcopia_lab.select()
         self.svcopia_espiro.select()
         self.appearance_mode_optionmenu.set("Escuro")
         self.scaling_optionmenu.set("100%")
 
         # Tela inicial padrão
-        self.select_frame("espiro")
+        self.select_frame("calc")
 
     def select_frame(self, frame):
         # Cor do botão
@@ -296,7 +371,9 @@ Insira seus exames no campo abaixo')
     def change_scaling_event(self, new_scaling: str):
         new_scaling_float = int(new_scaling.replace("%", "")) / 100
         ctk.set_widget_scaling(new_scaling_float)
-
+    
+    def abrir_link(self):
+        webbrowser.open('https://forms.gle/YEPhf3DAVcMSvS7W9')
 
 if __name__ == "__main__":
     app = App()
