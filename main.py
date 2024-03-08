@@ -355,11 +355,13 @@ def gerartabela(corpo, topo):
         body=corpo,
         # footer=["SUM", "130", "140", "135", "130"],
         alignments=Alignment.LEFT,
-        number_alignments= Alignment.LEFT,
+        number_alignments= Alignment.CENTER,
         style=PresetStyle.minimalist #thin_thick  # minimalist
     )
-    print(tabela)
-    pyperclip.copy(tabela)
+    
+    output = tabela.replace('─','—').replace('━','=').replace(' - ', '   ')
+    print(output)
+    pyperclip.copy(output)
 
 def main():
     """Função principal, executa programa.

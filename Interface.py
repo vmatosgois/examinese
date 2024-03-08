@@ -94,7 +94,7 @@ class App(ctk.CTk):
                                                                        command=self.change_appearance_mode_event)
         self.appearance_mode_optionmenu.grid(row=8, column=0, padx=20, pady=(10, 10))
         
-        self.scaling_label = ctk.CTkLabel(self.sidebar_frame, text="Proporção:", anchor="w")
+        self.scaling_label = ctk.CTkLabel(self.sidebar_frame, text="Zoom:", anchor="w")
         self.scaling_label.grid(row=9, column=0, padx=20, pady=(0, 0))
         self.scaling_optionmenu = ctk.CTkOptionMenu(self.sidebar_frame, values=["80%", "90%", "100%", "110%", "120%"],
                                                                command=self.change_scaling_event)
@@ -145,7 +145,7 @@ Insira seus exames no campo abaixo')
         self.textbox = ctk.CTkTextbox(self.lab_frame,
                                border_width=2,
                                corner_radius=10,
-                               font=ctk.CTkFont(size=14))
+                               font=ctk.CTkFont(family='Consolas', size=13))
         self.textbox.grid(row=2, column=0, padx=(20, 20), pady=(20, 0), sticky="nsew") 
 
         self.svcopia_lab = ctk.CTkCheckBox(self.lab_frame, text='Salvar uma cópia dos resultados')
