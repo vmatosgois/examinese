@@ -9,22 +9,18 @@ from PIL import Image
 
 ctk.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 ctk.set_default_color_theme("dark-blue")  # Themes: "blue" (standard), "green", "dark-blue"
-
+version = 'Piloto (beta v0.9)'
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
 
         # janela
         self.title("Examine-SE")
-        self.geometry(f"{1100}x{580}")
+        self.geometry(f"{1024}x{576}") # Feito em 1100x580
         
         # Try this method: Mudança de ícone
 
         # For root window:
-
-        # import os
-        # from PIL import ImageTk
-        # ...
 
         # self.iconpath = ImageTk.PhotoImage(file=os.path.join("assets","logo.png"))
         # self.wm_iconbitmap()
@@ -42,7 +38,7 @@ class App(ctk.CTk):
 
         # Imagens
         
-        image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
+        image_path = "images"
         self.home = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "Home_preta.png")),
                                                  dark_image=Image.open(os.path.join(image_path, "Home_branca.png")), size=(25, 25))
         self.lab = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "Lab_preta.png")),
@@ -93,16 +89,26 @@ class App(ctk.CTk):
 
         
         self.appearance_mode_label = ctk.CTkLabel(self.sidebar_frame, text="Tema:", anchor="w")
-        self.appearance_mode_label.grid(row=7, column=0, padx=20, pady=(10, 0))
+        self.appearance_mode_label.grid(row=7, column=0, padx=20, pady=(0, 0))
         self.appearance_mode_optionmenu = ctk.CTkOptionMenu(self.sidebar_frame, values=["Claro", "Escuro", "Sistema"],
                                                                        command=self.change_appearance_mode_event)
         self.appearance_mode_optionmenu.grid(row=8, column=0, padx=20, pady=(10, 10))
         
         self.scaling_label = ctk.CTkLabel(self.sidebar_frame, text="Proporção:", anchor="w")
-        self.scaling_label.grid(row=9, column=0, padx=20, pady=(10, 0))
+        self.scaling_label.grid(row=9, column=0, padx=20, pady=(0, 0))
         self.scaling_optionmenu = ctk.CTkOptionMenu(self.sidebar_frame, values=["80%", "90%", "100%", "110%", "120%"],
                                                                command=self.change_scaling_event)
         self.scaling_optionmenu.grid(row=10, column=0, padx=20, pady=(10, 20))
+        
+        
+        # Rodapé
+        
+        self.footer_frame = ctk.CTkFrame(self, height= 20, corner_radius=0)
+        self.footer_frame.grid(row= 5, column= 1, sticky= 'nsew')
+        self.footer_frame.columnconfigure(0, weight=1)
+        
+        self.footer_version_label = ctk.CTkLabel(self.footer_frame, text=f'Versão: {version}')
+        self.footer_version_label.grid(row=0, column= 1, sticky= 'e', padx= 10)
         
         # Home
         
@@ -224,6 +230,11 @@ Insira seus exames no campo abaixo')
         self.pre_fef2575_label.grid(row= 4, column= 0, padx= 10, pady= 5, sticky= 'ne')
         self.pre_fef2575_entry = ctk.CTkEntry(self.espiro_subframe4, width=70, corner_radius= 15)
         self.pre_fef2575_entry.grid(row= 4, column= 1, pady= 5, sticky='nw')
+        
+        self.previsto_fef2575_label = ctk.CTkLabel(self.espiro_subframe4, text='Previsto >', font=ctk.CTkFont(size=14))
+        self.previsto_fef2575_label.grid(row= 4, column= 2, padx= 10, pady= 5, sticky= 'ne')
+        self.previsto_fef2575_entry = ctk.CTkEntry(self.espiro_subframe4, width=70, corner_radius= 15)
+        self.previsto_fef2575_entry.grid(row= 4, column= 3, pady= 5, sticky='nw')
                 
         self.pos_fef2575_label = ctk.CTkLabel(self.espiro_subframe4, text='Pós BD - FEF 25-75%:', font=ctk.CTkFont(size=14))
         self.pos_fef2575_label.grid(row= 4, column= 4, padx= 10, pady= 5, sticky= 'ne')
@@ -251,7 +262,7 @@ Insira seus exames no campo abaixo')
                                                   text= 'Preencha os campos correspondentes e clique em "Concluir".')
         self.calc_sublabel.grid(row=1, column=1, padx=20, pady=(0,10), sticky= 'nsew')
         
-        self.calc_subframe = ctk.CTkFrame(self.calc_frame, corner_radius=5)
+        self.calc_subframe = ctk.CTkFrame(self.calc_frame, corner_radius=10)
         self.calc_subframe.grid(row= 2, column= 1, padx= 20, pady= 10)
         
         self.idade_label = ctk.CTkLabel(self.calc_subframe, text='Idade:', font=ctk.CTkFont(size=14))
@@ -278,9 +289,10 @@ Insira seus exames no campo abaixo')
         self.calc_concluir = ctk.CTkButton(self.calc_frame, text='Concluir', fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), hover_color=('gray70', 'gray30'))
         self.calc_concluir.grid(row=3, column= 1, padx=(20, 20), pady=(10, 20), sticky="ns")
         
-        self.ckdepi_var = tkinter.Variable(value= 0)
-        self.ckdepi_result = ctk.CTkTextbox(self.calc_frame, fg_color='transparent', width= 250, state= 'normal',border_width=0, corner_radius= 0,font=ctk.CTkFont(size=16))
-        self.ckdepi_result.insert(0.0, text=f'Resultado:\n {self.ckdepi_var} {kdigo.unidade}')
+        self.ckdepi_var_num = tkinter.StringVar(value= None)
+        self.ckdepi_var_str = tkinter.StringVar(value= None)
+        self.ckdepi_result = ctk.CTkTextbox(self.calc_frame, fg_color='transparent', width= 400, state= 'normal',border_width=0, corner_radius= 0,font=ctk.CTkFont(size=16))
+        self.ckdepi_result.insert(0.0, text=f'Resultado:\n{self.ckdepi_var_num.get()} {kdigo.unidade}\n\n{self.ckdepi_var_str.get()}')
         self.ckdepi_result.configure(state='disabled')
         self.ckdepi_result.grid(row= 4, column=1, padx=20, sticky='n')
         
@@ -312,7 +324,7 @@ Insira seus exames no campo abaixo')
         self.scaling_optionmenu.set("100%")
 
         # Tela inicial padrão
-        self.select_frame("calc")
+        self.select_frame("home")
 
     def select_frame(self, frame):
         # Cor do botão
@@ -376,5 +388,9 @@ Insira seus exames no campo abaixo')
         webbrowser.open('https://forms.gle/YEPhf3DAVcMSvS7W9')
 
 if __name__ == "__main__":
+    log_path= "logs"
+    if not os.path.exists(log_path): os.makedirs(log_path)
+    history_path= os.path.join("logs", "history")
+    if not os.path.exists(history_path): os.makedirs(history_path)
     app = App()
     app.mainloop()

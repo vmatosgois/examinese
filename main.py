@@ -1,8 +1,9 @@
-from table2ascii import *
+from table2ascii import table2ascii, PresetStyle, Merge, Alignment
 import datefinder #Atentar para datas incompletas, não contempladas por essa biblioteca
 from datetime import datetime
 from fuzzywuzzy import process # python-Levenshtein / rapidfuzz?
 import toolboxy as tb
+import pyperclip
 
 # Variaveis pré-declaradas
 
@@ -353,11 +354,12 @@ def gerartabela(corpo, topo):
         header=topo,
         body=corpo,
         # footer=["SUM", "130", "140", "135", "130"],
-        # alignments=Alignment.LEFT
-        # number_alignments= Alignment.CENTER
+        alignments=Alignment.LEFT,
+        number_alignments= Alignment.LEFT,
         style=PresetStyle.minimalist #thin_thick  # minimalist
     )
     print(tabela)
+    pyperclip.copy(tabela)
 
 def main():
     """Função principal, executa programa.
