@@ -6,12 +6,17 @@ __pycache__/
 # C extensions
 *.so
 
+# Demo files
+debug.txt
+demo.txt
+
 # Distribution / packaging
 .Python
 build/
 develop-eggs/
 output/
 dist/
+logs/
 downloads/
 eggs/
 .eggs/
