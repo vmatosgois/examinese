@@ -5,6 +5,7 @@ import os
 import main as soft
 import kdigo
 import webbrowser
+import pyperclip
 from PIL import Image
 
 ctk.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
@@ -151,7 +152,7 @@ Insira seus exames no campo abaixo')
         self.svcopia_lab = ctk.CTkCheckBox(self.lab_frame, text='Salvar uma cópia dos resultados')
         self.svcopia_lab.grid(row=3, column=0, pady=(20, 0), padx=20, sticky="s")
 
-        self.lab_concluir = ctk.CTkButton(self.lab_frame, text='Concluir', fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), hover_color=('gray70', 'gray30'))
+        self.lab_concluir = ctk.CTkButton(self.lab_frame, text='Concluir', fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), hover_color=('gray70', 'gray30'), command=self.lab_button_concluir)
         self.lab_concluir.grid(row=4, column= 0, padx=(20, 20), pady=(20, 20), sticky="ns")
 
         # Espiro
@@ -248,7 +249,7 @@ Insira seus exames no campo abaixo')
         self.svcopia_espiro = ctk.CTkCheckBox(self.espiro_subframe5, text='Salvar uma cópia dos resultados')
         self.svcopia_espiro.grid(row=0, column=1, pady=(20, 0), padx=20, sticky="s")
         
-        self.espiro_concluir = ctk.CTkButton(self.espiro_subframe5, text='Concluir', fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), hover_color=('gray70', 'gray30'))
+        self.espiro_concluir = ctk.CTkButton(self.espiro_subframe5, text='Concluir', fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), hover_color=('gray70', 'gray30'), command=self.espiro_button_concluir)
         self.espiro_concluir.grid(row=1, column= 1, padx=(20, 20), pady=(20, 20), sticky="ns")
         
         # Calculadoras, que vai ser só o ckdepi
@@ -286,7 +287,7 @@ Insira seus exames no campo abaixo')
         self.creat_entry = ctk.CTkEntry(self.calc_subframe, width=170, corner_radius= 10)
         self.creat_entry.grid(row= 7, column= 1, padx= 10, pady= (0,5), sticky='nw')
         
-        self.calc_concluir = ctk.CTkButton(self.calc_frame, text='Concluir', fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), hover_color=('gray70', 'gray30'))
+        self.calc_concluir = ctk.CTkButton(self.calc_frame, text='Concluir', fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), hover_color=('gray70', 'gray30'), command=self.ckdepi_button_concluir)
         self.calc_concluir.grid(row=3, column= 1, padx=(20, 20), pady=(10, 20), sticky="ns")
         
         self.ckdepi_var_num = tkinter.StringVar(value= None)
@@ -324,7 +325,7 @@ Insira seus exames no campo abaixo')
         self.scaling_optionmenu.set("100%")
 
         # Tela inicial padrão
-        self.select_frame("home")
+        self.select_frame("lab")
 
     def select_frame(self, frame):
         # Cor do botão
@@ -356,6 +357,8 @@ Insira seus exames no campo abaixo')
         else:
             self.help_frame.grid_forget()
 
+    # Botões dos frames
+    
     def home_button_action(self):
         self.select_frame("home")
 
@@ -386,6 +389,26 @@ Insira seus exames no campo abaixo')
     
     def abrir_link(self):
         webbrowser.open('https://forms.gle/YEPhf3DAVcMSvS7W9')
+        
+    # Botões de finalizar
+    
+    def lab_button_concluir(self):
+        # Entradas
+        print(self.svcopia_lab.get())
+        
+        entry = self.textbox.get("0.0", "end")
+        output = soft.main(entry)
+        self.textbox.delete("0.0", "end")
+        self.textbox.insert("0.0", output)
+        
+    def lab_button_voltar(self):
+        ...
+        
+    def espiro_button_concluir(self):
+        print('espiro') 
+        
+    def ckdepi_button_concluir(self):
+        print('ckdepi') 
 
 if __name__ == "__main__":
     log_path= "logs"

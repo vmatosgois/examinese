@@ -3,13 +3,13 @@ import datefinder #Atentar para datas incompletas, não contempladas por essa bi
 from datetime import datetime
 from fuzzywuzzy import process # python-Levenshtein / rapidfuzz?
 import toolboxy as tb
-import pyperclip
 
 # Variaveis pré-declaradas
 
 lista_de_datas = []
 lista_remover = list()
 master = dict()
+fetch = ''
 
 espelho = { 'Hm': ['Hm'],
             'Hb': ['Hb'],
@@ -360,15 +360,22 @@ def gerartabela(corpo, topo):
     )
     
     output = tabela.replace('─','—').replace('━','=').replace(' - ', '   ')
-    print(output)
-    pyperclip.copy(output)
+    return output
 
-def main():
+def main(entry):
     """Função principal, executa programa.
-    
+
+    Args:
+        entry (str): Entrada de texto inicial
+
+    Returns:
+        str: Tabela gerada pelo programa
     """
     
-    raw = boot()
+    if entry == '':
+        raw = boot()
+    else:
+        raw = entry
     merged = preset(raw)
     texto = corretor(merged)
     texto_exames = processar_datas(texto)
@@ -376,12 +383,11 @@ def main():
     exams = tinder(master)
     sorted = sort(exams)
     corpo = doc(sorted)
-    gerartabela(corpo, topo)
+    final = gerartabela(corpo, topo)
+    
+    return final
 
     
 if __name__ == '__main__':
-    tb.requirements()
-    print(tb.elapsed_clocktime(main))
-    # Backup:
-    #tb.backup(file='main.py', output_path='backups/security_copies')
+    print(tb.elapsed_clocktime(main, fetch))
     ...
