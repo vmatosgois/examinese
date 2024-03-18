@@ -5,31 +5,29 @@ import os
 import main as soft
 import kdigo
 import webbrowser
+import time
 import pyperclip
 from PIL import Image
 
 ctk.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 ctk.set_default_color_theme("dark-blue")  # Themes: "blue" (standard), "green", "dark-blue"
 version = 'Piloto (beta v0.9)'
+user = 'admin'
+if os.path.exists('user.txt'): 
+            with open("user.txt", "r", encoding='utf-8') as file:
+                user = file.read()
+
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
 
+        # Variáveis:
+        
+        entry = ''
+        
         # janela
         self.title("Examine-SE")
         self.geometry(f"{1024}x{576}") # Feito em 1100x580
-        
-        # Try this method: Mudança de ícone
-
-        # For root window:
-
-        # self.iconpath = ImageTk.PhotoImage(file=os.path.join("assets","logo.png"))
-        # self.wm_iconbitmap()
-        # self.iconphoto(False, self.iconpath)
-        # For toplevels:
-
-        # self.wm_iconbitmap()
-        # self.after(300, lambda: self.iconphoto(False, self.iconpath))
 
         # Grid
         
@@ -106,10 +104,16 @@ class App(ctk.CTk):
         
         self.footer_frame = ctk.CTkFrame(self, height= 20, corner_radius=0)
         self.footer_frame.grid(row= 5, column= 1, sticky= 'nsew')
-        self.footer_frame.columnconfigure(0, weight=1)
+        self.footer_frame.columnconfigure(1, weight=1)
         
         self.footer_version_label = ctk.CTkLabel(self.footer_frame, text=f'Versão: {version}')
-        self.footer_version_label.grid(row=0, column= 1, sticky= 'e', padx= 10)
+        self.footer_version_label.grid(row=0, column= 2, sticky= 'e', padx= 10)
+        
+        self.footer_user_label = ctk.CTkLabel(self.footer_frame, text=f'Usuário: {user}')
+        self.footer_user_label.grid(row=0, column= 0, sticky= 'w', padx= 10)
+        
+        self.footer_message_label = ctk.CTkLabel(self.footer_frame, text='', text_color='green', font=ctk.CTkFont(weight="bold"))
+        self.footer_message_label.grid(row=0, column= 1, sticky= 'n', padx= 10)
         
         # Home
         
@@ -154,6 +158,8 @@ Insira seus exames no campo abaixo')
 
         self.lab_concluir = ctk.CTkButton(self.lab_frame, text='Concluir', fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), hover_color=('gray70', 'gray30'), command=self.lab_button_concluir)
         self.lab_concluir.grid(row=4, column= 0, padx=(20, 20), pady=(20, 20), sticky="ns")
+        
+        self.lab_undo_button = ctk.CTkButton(self.lab_frame, text='Desfazer', fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), hover_color=('gray70', 'gray30'), command=self.lab_button_undo)
 
         # Espiro
         
@@ -394,15 +400,46 @@ Insira seus exames no campo abaixo')
     
     def lab_button_concluir(self):
         # Entradas
-        print(self.svcopia_lab.get())
-        
-        entry = self.textbox.get("0.0", "end")
-        output = soft.main(entry)
+        global entry
+            
+        entry = self.textbox.get("0.0", 'end-1c')
+        output = soft.main(entry).strip('/n')
         self.textbox.delete("0.0", "end")
         self.textbox.insert("0.0", output)
         
-    def lab_button_voltar(self):
-        ...
+        pyperclip.copy(output)
+        
+        if self.svcopia_lab.get() == 1:
+            self.create_copy(entry, output)
+        
+        self.textbox.configure(state='disabled')
+        
+        self.lab_concluir.configure(text= 'Novo texto', command= self.lab_button_new)
+        
+        self.lab_undo_button.grid(row= 4, column= 0, padx=(20, 20), pady=(20, 20), sticky="w")
+        
+        return entry
+        #self.message()
+        
+    def lab_button_new(self):
+        self.lab_undo_button.grid_forget()
+        
+        self.textbox.configure(state='normal')
+        self.textbox.delete("0.0", "end")
+        
+        self.lab_concluir.configure(text= 'Concluir', command= self.lab_button_concluir)
+        
+        
+    def lab_button_undo(self):
+        global entry
+        
+        self.lab_undo_button.grid_forget()
+        
+        self.lab_concluir.configure(text= 'Concluir', command= self.lab_button_concluir)
+        
+        self.textbox.configure(state='normal')
+        self.textbox.delete("0.0", "end")
+        self.textbox.insert('0.0', entry)
         
     def espiro_button_concluir(self):
         print('espiro') 
@@ -410,10 +447,25 @@ Insira seus exames no campo abaixo')
     def ckdepi_button_concluir(self):
         print('ckdepi') 
 
+    # Outras funções:
+    
+    def message(self):
+        self.footer_message_label.configure(text='Copiado para a área de transferência!')
+        time.sleep(3)
+        self.footer_message_label.configure(text='') 
+        
+    def create_copy(self, text1, text2):
+        
+        t = time.localtime()
+        name = time.strftime("%d-%m-%Y %H-%M-%S", t)
+        with open(f'copias/{name}.txt', 'x', encoding='utf-8') as history:
+            history.write(f'Entrada:\n{text1}\n\nSaída:\n{text2}')
+        
+        
 if __name__ == "__main__":
     log_path= "logs"
     if not os.path.exists(log_path): os.makedirs(log_path)
-    history_path= os.path.join("logs", "history")
+    history_path= "copias"
     if not os.path.exists(history_path): os.makedirs(history_path)
     app = App()
     app.mainloop()
