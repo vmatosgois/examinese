@@ -31,7 +31,7 @@ valores = {'DATA': '',
            'POS_FEF2575': '',
            'FEF2575/CVF': ''
            }
-valores = demo
+# valores = demo
 
 def process_values(valores):
     
@@ -56,13 +56,17 @@ def process_values(valores):
         comma['PRE_FEV1'] = f"{comma['PRE_FEV1']} ({round(float(comma['PRE_FEV1']) / float(comma['FEV1_PREVISTO']) * 100, 1)}%)"
     except:
         ...
+    
+    try:
+        comma['PRE_FEF2575'] = f"{comma['PRE_FEF2575']} ({round(float(comma['PRE_FEF2575']) / float(comma['FEF2575_PREVISTO']) * 100, 1)}%)"
+    except:
+        ...
         
     fill_empty = {key: 'NI' for key in comma.keys() if comma[key] == ''}
     resto = {chave: comma[chave] for chave in comma.keys() if chave not in fill_empty}
     
     fill_empty.update(resto)
-    
-    print(fill_empty)
+
     return fill_empty
     
 
@@ -96,15 +100,13 @@ def refine (valores):
     for r in index:
         corpo.pop(r)
     
-    print(index)
-    
     return corpo, topo
     
 def tabela(corpo, topo):
     tabela = table2ascii(
         header=topo,
         body=corpo,
-        footer=['NI = Não Informado', '© Victor Matos, 2024'] + [Merge.LEFT]*(len(topo)-2),
+        footer=['© Victor Matos, 2024'] + [Merge.LEFT]*(len(topo)-1),
         style=PresetStyle.minimalist
     ).replace('─','—').replace('━','=')
     return tabela
@@ -113,7 +115,9 @@ def main(valores):
     
     processed = process_values(valores)
     refined_corpo, refined_topo = refine(processed)
-    print(tabela(refined_corpo, refined_topo))
+    output = tabela(refined_corpo, refined_topo)
     
+    return output
+
 if __name__ == '__main__':
    main(valores)

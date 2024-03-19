@@ -8,6 +8,7 @@ import webbrowser
 import time
 import pyperclip
 import log
+import espiro as es
 from PIL import Image
 
 ctk.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
@@ -174,7 +175,7 @@ Insira seus exames no campo abaixo')
         self.espiro_label = ctk.CTkLabel(self.espiro_subframe0, text= 'Formatação de Espirometrias', font=ctk.CTkFont(size=20, weight='bold'))
         self.espiro_label.grid(row= 0, column = 3, padx= 20, pady= 20, sticky='n')
         self.espiro_sublabel = ctk.CTkLabel(self.espiro_subframe0,
-                                            text= 'Para começar, preencha todos os campos exibidos abaixo.\nInsira apenas números.\nNos campos "Previsto >", informe o valor do Limite Inferior da Normalidade.',
+                                            text= 'Para começar, preencha todos os campos exibidos abaixo.\nInsira apenas números.\nNos campos "Previsto >", informe o valor do Limite Inferior da Normalidade.\nNI = Não Informado',
                                             font=ctk.CTkFont(size=16))
         self.espiro_sublabel.grid(row=1, column= 3, padx=20, pady= (0,20), sticky='n')
         
@@ -451,7 +452,27 @@ Insira seus exames no campo abaixo')
         self.remove_message()
         
     def espiro_button_concluir(self):
-        print('espiro') 
+        
+        es.valores['DATA'] = self.data_entry.get()
+        es.valores['PRE_CVF'] = self.pre_cvf_entry.get()
+        es.valores['CVF_PREVISTO'] = self.previsto_cvf_entry.get()
+        es.valores['POS_CVF'] = self.pos_cvf_entry.get()
+        es.valores['PRE_FEV1'] = self.pre_fev_entry.get()
+        es.valores['FEV1_PREVISTO'] = self.previsto_fev_entry.get()
+        es.valores['POS_FEV1'] = self.pos_fev_entry.get()
+        es.valores['FEV1/CVF_PREVISTO'] = self.previsto_fev_cvf_entry.get()
+        es.valores['PRE_FEF2575'] = self.pre_fef2575_entry.get()
+        es.valores['FEF2575_PREVISTO'] = self.previsto_fef2575_entry.get()
+        es.valores['POS_FEF2575'] = self.pos_fef2575_entry.get()
+
+        output = es.main(valores=es.valores)
+        
+        pyperclip.copy(output)
+            
+        if self.svcopia_espiro.get() == 1:
+                self.create_copy(es.valores, output)
+                
+        self.message()
         
     def ckdepi_button_concluir(self):
         
@@ -498,7 +519,7 @@ if __name__ == "__main__":
     log.create_log()
     
     due_date = time.localtime()    
-    if due_date[1] < 6:
+    if due_date[1] < 7:
         log_path= "logs"
         if not os.path.exists(log_path): os.makedirs(log_path)
         history_path= "copias"
@@ -506,4 +527,4 @@ if __name__ == "__main__":
         app = App()
         app.mainloop()
     else:
-        tkinter.messagebox.showinfo(title= 'Fim de período de testes', message='Obrigado pela sua participação na pesquisa.\nCaso acredite que isto seja um erro, entre em contato com Victor Matos.\nTelefone para contato: (79)99808-0327\nEmail: vmatosgois@gmail.com')
+        tkinter.messagebox.showinfo(title= 'Fim de período de testes', message='O período de testes foi encerrado.\nObrigado pela sua participação na pesquisa.\nCaso acredite que isto seja um erro, entre em contato com Victor Matos.\nTelefone para contato: (79)99808-0327\nEmail: vmatosgois@gmail.com')
