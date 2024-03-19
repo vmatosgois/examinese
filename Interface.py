@@ -11,7 +11,7 @@ from PIL import Image
 
 ctk.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 ctk.set_default_color_theme("dark-blue")  # Themes: "blue" (standard), "green", "dark-blue"
-version = 'Piloto (beta v0.9)'
+version = 'Piloto (beta v0.7)'
 user = 'admin'
 if os.path.exists('user.txt'): 
             with open("user.txt", "r", encoding='utf-8') as file:
@@ -296,12 +296,7 @@ Insira seus exames no campo abaixo')
         self.calc_concluir = ctk.CTkButton(self.calc_frame, text='Concluir', fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), hover_color=('gray70', 'gray30'), command=self.ckdepi_button_concluir)
         self.calc_concluir.grid(row=3, column= 1, padx=(20, 20), pady=(10, 20), sticky="ns")
         
-        self.ckdepi_var_num = tkinter.StringVar(value= None)
-        self.ckdepi_var_str = tkinter.StringVar(value= None)
         self.ckdepi_result = ctk.CTkTextbox(self.calc_frame, fg_color='transparent', width= 400, state= 'normal',border_width=0, corner_radius= 0,font=ctk.CTkFont(size=16))
-        self.ckdepi_result.insert(0.0, text=f'Resultado:\n{self.ckdepi_var_num.get()} {kdigo.unidade}\n\n{self.ckdepi_var_str.get()}')
-        self.ckdepi_result.configure(state='disabled')
-        self.ckdepi_result.grid(row= 4, column=1, padx=20, sticky='n')
         
         # Ajuda
         
@@ -367,18 +362,23 @@ Insira seus exames no campo abaixo')
     
     def home_button_action(self):
         self.select_frame("home")
+        self.remove_message()
 
     def lab_button_action(self):
         self.select_frame("lab")
+        self.remove_message()
 
     def espiro_button_action(self):
         self.select_frame("espiro")
+        self.remove_message()
 
     def calc_button_action(self):
         self.select_frame("calc")
+        self.remove_message()
         
     def help_button_action(self):
         self.select_frame("help")
+        self.remove_message()
 
     def change_appearance_mode_event(self, new_appearance_mode: str):
         if new_appearance_mode == 'Claro':
@@ -418,8 +418,10 @@ Insira seus exames no campo abaixo')
         
         self.lab_undo_button.grid(row= 4, column= 0, padx=(20, 20), pady=(20, 20), sticky="w")
         
+        self.message()
+        
         return entry
-        #self.message()
+        
         
     def lab_button_new(self):
         self.lab_undo_button.grid_forget()
@@ -429,6 +431,7 @@ Insira seus exames no campo abaixo')
         
         self.lab_concluir.configure(text= 'Concluir', command= self.lab_button_concluir)
         
+        self.remove_message()
         
     def lab_button_undo(self):
         global entry
@@ -441,18 +444,46 @@ Insira seus exames no campo abaixo')
         self.textbox.delete("0.0", "end")
         self.textbox.insert('0.0', entry)
         
+        self.remove_message()
+        
     def espiro_button_concluir(self):
         print('espiro') 
         
     def ckdepi_button_concluir(self):
-        print('ckdepi') 
+        
+        self.ckdepi_result.configure(state='normal')
+        self.ckdepi_result.delete("0.0", "end")
+        
+        idade = self.idade_entry.get()
+        sexo = self.radio_var.get() if self.radio_var.get() != None else ''
+        creat = self.creat_entry.get()
+        
+        print(sexo, idade, creat)
+
+        if '' in (idade, sexo, creat):
+            tkinter.messagebox.showwarning('Erro', 'Por favor, preencha todos os campos.')
+        else: 
+            tfg = kdigo.ckdepi(creat, idade, sexo)
+            score = kdigo.scoreKdigo(tfg)
+            
+            self.ckdepi_result.insert(0.0, text=f'Resultado:\n{tfg} {kdigo.unidade}\nEstágio: {score}')
+            self.ckdepi_result.configure(state='disabled')
+            self.ckdepi_result.grid(row= 4, column=1, padx=20, sticky='n')
+            
+            
+            pyperclip.copy(self.ckdepi_result.get('0.0', 'end-1c'))
+            
+            self.message()
 
     # Outras funções:
     
     def message(self):
+        
         self.footer_message_label.configure(text='Copiado para a área de transferência!')
-        time.sleep(3)
-        self.footer_message_label.configure(text='') 
+        
+    def remove_message(self):
+        
+        self.footer_message_label.configure(text='')
         
     def create_copy(self, text1, text2):
         
@@ -463,9 +494,13 @@ Insira seus exames no campo abaixo')
         
         
 if __name__ == "__main__":
-    log_path= "logs"
-    if not os.path.exists(log_path): os.makedirs(log_path)
-    history_path= "copias"
-    if not os.path.exists(history_path): os.makedirs(history_path)
-    app = App()
-    app.mainloop()
+    due_date = time.localtime()    
+    if due_date[1] < 6:
+        log_path= "logs"
+        if not os.path.exists(log_path): os.makedirs(log_path)
+        history_path= "copias"
+        if not os.path.exists(history_path): os.makedirs(history_path)
+        app = App()
+        app.mainloop()
+    else:
+        tkinter.messagebox.showinfo(title= 'Fim de período de testes', message='Obrigado pela sua participação na pesquisa.\nCaso acredite que isto seja um erro, entre em contato com Victor.\nTelefone para contato: (79)99808-0327')

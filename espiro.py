@@ -1,4 +1,3 @@
-import PySimpleGUI as sg
 from table2ascii import table2ascii, PresetStyle, Merge, Alignment
 
 demo = {'DATA': '01/12/22', 'CVF': '3.96', 'CVFPREVISTO': '3.22', 'POSCVF': '3.93', 'FEV1': '3.04',
