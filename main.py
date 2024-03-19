@@ -372,7 +372,7 @@ def main(entry):
         str: Tabela gerada pelo programa
     """
     
-    if entry == '':
+    if entry == 'demo':
         raw = boot()
     else:
         raw = entry

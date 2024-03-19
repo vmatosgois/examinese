@@ -7,6 +7,7 @@ import kdigo
 import webbrowser
 import time
 import pyperclip
+import log
 from PIL import Image
 
 ctk.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
@@ -403,25 +404,28 @@ Insira seus exames no campo abaixo')
         global entry
             
         entry = self.textbox.get("0.0", 'end-1c')
-        output = soft.main(entry).strip('/n')
-        self.textbox.delete("0.0", "end")
-        self.textbox.insert("0.0", output)
-        
-        pyperclip.copy(output)
-        
-        if self.svcopia_lab.get() == 1:
-            self.create_copy(entry, output)
-        
-        self.textbox.configure(state='disabled')
-        
-        self.lab_concluir.configure(text= 'Novo texto', command= self.lab_button_new)
-        
-        self.lab_undo_button.grid(row= 4, column= 0, padx=(20, 20), pady=(20, 20), sticky="w")
-        
-        self.message()
-        
-        return entry
-        
+        if entry != '':
+            output = soft.main(entry)
+            self.textbox.delete("0.0", "end")
+            self.textbox.insert("0.0", output)
+            
+            pyperclip.copy(output)
+            
+            if self.svcopia_lab.get() == 1:
+                self.create_copy(entry, output)
+            
+            self.textbox.configure(state='disabled')
+            
+            self.lab_concluir.configure(text= 'Novo texto', command= self.lab_button_new)
+            
+            self.lab_undo_button.grid(row= 4, column= 0, padx=(20, 20), pady=(20, 20), sticky="w")
+            
+            self.message()
+            
+            return entry
+        else:
+            tkinter.messagebox.showwarning('Erro', 'Por favor, insira o texto.')
+            
         
     def lab_button_new(self):
         self.lab_undo_button.grid_forget()
@@ -457,12 +461,8 @@ Insira seus exames no campo abaixo')
         idade = self.idade_entry.get()
         sexo = self.radio_var.get() if self.radio_var.get() != None else ''
         creat = self.creat_entry.get()
-        
-        print(sexo, idade, creat)
 
-        if '' in (idade, sexo, creat):
-            tkinter.messagebox.showwarning('Erro', 'Por favor, preencha todos os campos.')
-        else: 
+        if '' not in (idade, sexo, creat):
             tfg = kdigo.ckdepi(creat, idade, sexo)
             score = kdigo.scoreKdigo(tfg)
             
@@ -470,10 +470,11 @@ Insira seus exames no campo abaixo')
             self.ckdepi_result.configure(state='disabled')
             self.ckdepi_result.grid(row= 4, column=1, padx=20, sticky='n')
             
-            
             pyperclip.copy(self.ckdepi_result.get('0.0', 'end-1c'))
             
             self.message()
+        else: 
+            tkinter.messagebox.showwarning('Erro', 'Por favor, preencha todos os campos.')
 
     # Outras funções:
     
@@ -494,6 +495,8 @@ Insira seus exames no campo abaixo')
         
         
 if __name__ == "__main__":
+    log.create_log()
+    
     due_date = time.localtime()    
     if due_date[1] < 6:
         log_path= "logs"
@@ -503,4 +506,4 @@ if __name__ == "__main__":
         app = App()
         app.mainloop()
     else:
-        tkinter.messagebox.showinfo(title= 'Fim de período de testes', message='Obrigado pela sua participação na pesquisa.\nCaso acredite que isto seja um erro, entre em contato com Victor.\nTelefone para contato: (79)99808-0327')
+        tkinter.messagebox.showinfo(title= 'Fim de período de testes', message='Obrigado pela sua participação na pesquisa.\nCaso acredite que isto seja um erro, entre em contato com Victor Matos.\nTelefone para contato: (79)99808-0327\nEmail: vmatosgois@gmail.com')
