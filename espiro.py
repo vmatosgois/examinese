@@ -62,6 +62,21 @@ def process_values(valores):
     except:
         ...
         
+    try:
+        comma['POS_CVF'] = f"{comma['POS_CVF']} ({round(float(comma['POS_CVF']) / float(comma['CVF_PREVISTO']) * 100, 1)}%)"
+    except:
+        ...
+        
+    try:
+        comma['POS_FEV1'] = f"{comma['POS_FEV1']} ({round(float(comma['POS_FEV1']) / float(comma['FEV1_PREVISTO']) * 100, 1)}%)"
+    except:
+        ...
+    
+    try:
+        comma['POS_FEF2575'] = f"{comma['POS_FEF2575']} ({round(float(comma['POS_FEF2575']) / float(comma['FEF2575_PREVISTO']) * 100, 1)}%)"
+    except:
+        ...
+        
     fill_empty = {key: 'NI' for key in comma.keys() if comma[key] == ''}
     resto = {chave: comma[chave] for chave in comma.keys() if chave not in fill_empty}
     
@@ -120,4 +135,4 @@ def main(valores):
     return output
 
 if __name__ == '__main__':
-   main(valores)
+   print(main(valores))

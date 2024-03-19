@@ -9,7 +9,6 @@ import toolboxy as tb
 lista_de_datas = []
 lista_remover = list()
 master = dict()
-fetch = ''
 
 espelho = { 'Hm': ['Hm'],
             'Hb': ['Hb'],
@@ -385,9 +384,16 @@ def main(entry):
     corpo = doc(sorted)
     final = gerartabela(corpo, topo)
     
+    # Limpeza de variáveis:
+    
+    lista_de_datas.clear()
+    lista_remover.clear()
+    master = {}
+    
     return final
-
+    
     
 if __name__ == '__main__':
-    print(tb.elapsed_clocktime(main, fetch))
+    test = '12/12/2021 ct 342423'
+    print(main(test))
     ...
