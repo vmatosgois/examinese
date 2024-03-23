@@ -9,6 +9,8 @@ import time
 import pyperclip
 import log
 import espiro as es
+import images as img
+from loguru import logger
 from PIL import Image
 
 ctk.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
@@ -39,19 +41,27 @@ class App(ctk.CTk):
 
         # Imagens
         
+        # image_path = "images"
+        # self.home = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "Home_preta.png")),
+        #                                          dark_image=Image.open(os.path.join(image_path, "Home_branca.png")), size=(25, 25))
+        # self.lab = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "Lab_preta.png")),
+        #                                          dark_image=Image.open(os.path.join(image_path, "Lab_branca.png")), size=(25, 25))
+        # self.espiro = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "lung_preta.png")),
+        #                                              dark_image=Image.open(os.path.join(image_path, "lung_branca.png")), size=(25, 25))
+        # self.calc = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "Calc_preta.png")),
+        #                                              dark_image=Image.open(os.path.join(image_path, "Calc_branca.png")), size=(25, 25))
+        # self.config = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "Config_preta.png")),
+        #                                              dark_image=Image.open(os.path.join(image_path, "Config_branca.png")), size=(25, 25))
+        # self.help = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "Ajuda_preta.png")),
+        #                                              dark_image=Image.open(os.path.join(image_path, "Ajuda_branca.png")), size=(25, 25))
+        
         image_path = "images"
-        self.home = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "Home_preta.png")),
-                                                 dark_image=Image.open(os.path.join(image_path, "Home_branca.png")), size=(25, 25))
-        self.lab = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "Lab_preta.png")),
-                                                 dark_image=Image.open(os.path.join(image_path, "Lab_branca.png")), size=(25, 25))
-        self.espiro = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "lung_preta.png")),
-                                                     dark_image=Image.open(os.path.join(image_path, "lung_branca.png")), size=(25, 25))
-        self.calc = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "Calc_preta.png")),
-                                                     dark_image=Image.open(os.path.join(image_path, "Calc_branca.png")), size=(25, 25))
-        self.config = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "Config_preta.png")),
-                                                     dark_image=Image.open(os.path.join(image_path, "Config_branca.png")), size=(25, 25))
-        self.help = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "Ajuda_preta.png")),
-                                                     dark_image=Image.open(os.path.join(image_path, "Ajuda_branca.png")), size=(25, 25))
+        self.home = ctk.CTkImage(light_image=Image.open(img.home_p_final), dark_image=Image.open(img.home_b_final), size=(25, 25))
+        self.lab = ctk.CTkImage(light_image=Image.open(img.lab_p_final), dark_image=Image.open(img.lab_b_final), size=(25, 25))
+        self.espiro = ctk.CTkImage(light_image=Image.open(img.lung_p_final), dark_image=Image.open(img.lung_b_final), size=(25, 25))
+        self.calc = ctk.CTkImage(light_image=Image.open(img.calc_p_final), dark_image=Image.open(img.calc_b_final), size=(25, 25))
+        self.config = ctk.CTkImage(light_image=Image.open(img.config_p_final), dark_image=Image.open(img.config_b_final), size=(25, 25))
+        self.help = ctk.CTkImage(light_image=Image.open(img.ajuda_p_final), dark_image=Image.open(img.ajuda_b_final), size=(25, 25))
                         
         
         # Barra lateral
@@ -399,7 +409,7 @@ Insira seus exames no campo abaixo')
         webbrowser.open('https://forms.gle/YEPhf3DAVcMSvS7W9')
         
     # Botões de finalizar
-    
+    @logger.catch
     def lab_button_concluir(self):
         # Entradas
         global entry
