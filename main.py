@@ -102,12 +102,10 @@ merger = {'Sérico': ['Sérico', 'Serico', 'Seri'],
 
 
 def boot():
-    user = ''#input('Insira os exames: ')
-    if user == '':
-        with open("demo.txt", "r", encoding='utf-8') as arquivo: #Trocar para demo.txt
-            raw = arquivo.read()
-    else:
-        raw = user
+    
+    with open("demo.txt", "r", encoding='utf-8') as arquivo: #Trocar para demo.txt
+        raw = arquivo.read()
+        
     return raw
 
 def preset(raw, merger = merger):
@@ -121,9 +119,17 @@ def preset(raw, merger = merger):
     Returns:
         str: Varíavel contendo texto reformulado 
     """
+    global lista_de_datas
     
     tokens = raw.split()
     merged = []
+    bugfix = []
+    
+    # BUG FIX - DO NOT REMOVE:
+    datas = datefinder.find_dates(raw, source=True, strict=True)
+    for d in datas:
+        lista_de_datas.append(d[1])
+    
     
     # Limpa caracteres especiais e espaços vazios, deixa tudo capitalizado
     tokens = [elemento.capitalize() for elemento in tokens]
@@ -143,7 +149,7 @@ def preset(raw, merger = merger):
         melhor_correspondecia = max(correspondencias.items(), key=lambda x: x[1][1])
         if melhor_correspondecia[1][1] > 80:
             merged.append(melhor_correspondecia[0])
-            if merged[len(merged)-2].replace('.', '').replace(',', '').isnumeric():
+            if merged[len(merged)-2].replace('.', '').replace(',', '').isnumeric() or merged[len(merged)-2] in lista_de_datas:
                 continue
             merged[len(merged)-2] = '-'.join(merged[len(merged)-2:])
             merged.pop()
@@ -204,10 +210,11 @@ def processar_datas(texto):
     
     global lista_de_datas, lista_remover
     
-    # Cria uma lista de datas
-    datas = datefinder.find_dates(texto, source=True, strict=True)
-    for d in datas:
-        lista_de_datas.append(d[1])
+    # Cria uma lista de datas - Suspenso devido a bug com função de datas
+    
+    # datas = datefinder.find_dates(texto, source=True, strict=True, first='day')
+    # for d in datas:
+    #     lista_de_datas.append(d[1])
 
     texto = texto.split()
 
@@ -394,6 +401,5 @@ def main(entry):
     
     
 if __name__ == '__main__':
-    test = '12/12/2021 ct 342423'
-    print(main(test))
+    print(main('demo'))
     ...
