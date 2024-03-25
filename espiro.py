@@ -33,7 +33,18 @@ valores = {'DATA': '',
            }
 # valores = demo
 
+# ---------------------------------- CODIGO FEITO ÀS PRESSAS, SUJEITO A ALTERAÇÕES ---------------------------------
+
+
 def process_values(valores):
+    """Testa os valores disponíveis um a um e tenta calcular valores relativos quando possível
+
+    Args:
+        valores (dict): Dicionário contendo entradas
+
+    Returns:
+        dict: dicionário modificado com valores relativos
+    """
     
     comma = {key: valores[key].replace(',', '.') for key in valores.keys()}
 
@@ -86,6 +97,14 @@ def process_values(valores):
     
 
 def refine (valores):
+    """Reorganiza dados brutos antes de enviar para geração de tabela
+
+    Args:
+        valores (dict): Dicionário contendo exames pré-processados
+
+    Returns:
+        list: Listas contendo cabeçalho e corpo da tabela
+    """
     
     topo = ['DATA:', valores['DATA'], 'ESPIROMETRIA', Merge.LEFT, Merge.LEFT, Merge.LEFT, Merge.LEFT]
     
@@ -118,6 +137,15 @@ def refine (valores):
     return corpo, topo
     
 def tabela(corpo, topo):
+    """Gera tabela
+
+    Args:
+        corpo (list): Corpo da tabela
+        topo (list): Cabeçalho da tabela
+
+    Returns:
+        str: Tabela
+    """
     tabela = table2ascii(
         header=topo,
         body=corpo,
@@ -127,6 +155,14 @@ def tabela(corpo, topo):
     return tabela
 
 def main(valores):
+    """Inicia a subrotina a partir de uma amostra de dados
+
+    Args:
+        valores (dict): Entrada de exames do usuário
+
+    Returns:
+        str: Tabela
+    """
     
     processed = process_values(valores)
     refined_corpo, refined_topo = refine(processed)

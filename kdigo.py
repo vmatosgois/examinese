@@ -3,6 +3,16 @@ import math
 unidade = 'mL/min/1.73m^2'
 
 def ckdepi(Creatinina, Idade, Sexo):
+    """Calcula taxa de filtração glomerular
+
+    Args:
+        Creatinina (float): Valor de creatinina
+        Idade (int): Idade em anos
+        Sexo (str): Sexo do paciente
+
+    Returns:
+        float: Taxa de filtração glomerular (TFG)
+    """
     
     Creatinina = float(Creatinina.replace(',', '.'))
     Idade = int(Idade)
@@ -24,6 +34,14 @@ def ckdepi(Creatinina, Idade, Sexo):
 
 
 def scoreKdigo(TFG):
+    """Classifica a TFG segundo o KDIGO 2021
+
+    Args:
+        TFG (float): Taxa de filtração glomerular
+
+    Returns:
+        str: Estratificação de função renal
+    """
     score = ''
     if TFG < 15:
         score = 'G5 (Falência Renal)'
