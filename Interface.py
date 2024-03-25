@@ -18,8 +18,8 @@ ctk.set_default_color_theme("dark-blue")  # Themes: "blue" (standard), "green", 
 version = 'Piloto (beta v0.7)'
 user = 'admin'
 if os.path.exists('user.txt'): 
-            with open("user.txt", "r", encoding='utf-8') as file:
-                user = file.read()
+    with open("user.txt", "r", encoding='utf-8') as file:
+        user = file.read()
 
 class App(ctk.CTk):
     def __init__(self):
@@ -437,7 +437,7 @@ Insira seus exames no campo abaixo')
         else:
             tkinter.messagebox.showwarning('Erro', 'Por favor, insira o texto.')
             
-        
+    @logger.catch    
     def lab_button_new(self):
         self.lab_undo_button.grid_forget()
         
@@ -447,7 +447,8 @@ Insira seus exames no campo abaixo')
         self.lab_concluir.configure(text= 'Concluir', command= self.lab_button_concluir)
         
         self.remove_message()
-        
+   
+    @logger.catch    
     def lab_button_undo(self):
         global entry
         
@@ -460,7 +461,8 @@ Insira seus exames no campo abaixo')
         self.textbox.insert('0.0', entry)
         
         self.remove_message()
-        
+    
+    @logger.catch    
     def espiro_button_concluir(self):
         
         es.valores['DATA'] = self.data_entry.get()
@@ -483,7 +485,8 @@ Insira seus exames no campo abaixo')
                 self.create_copy(es.valores, output)
                 
         self.message()
-        
+    
+    @logger.catch    
     def ckdepi_button_concluir(self):
         
         self.ckdepi_result.configure(state='normal')
@@ -516,25 +519,28 @@ Insira seus exames no campo abaixo')
     def remove_message(self):
         
         self.footer_message_label.configure(text='')
-        
+    
+    @logger.catch    
     def create_copy(self, text1, text2):
         
         t = time.localtime()
         name = time.strftime("%d-%m-%Y %H-%M-%S", t)
         with open(f'copias/{name}.txt', 'x', encoding='utf-8') as history:
             history.write(f'Entrada:\n{text1}\n\nSaída:\n{text2}')
-        
-        
-if __name__ == "__main__":
-    log.create_log()
-    
+
+
+@logger.catch        
+def start():
     due_date = time.localtime()    
     if due_date[1] < 7:
-        log_path= "logs"
-        if not os.path.exists(log_path): os.makedirs(log_path)
         history_path= "copias"
         if not os.path.exists(history_path): os.makedirs(history_path)
         app = App()
         app.mainloop()
     else:
         tkinter.messagebox.showinfo(title= 'Fim de período de testes', message='O período de testes foi encerrado.\nObrigado pela sua participação na pesquisa.\nCaso acredite que isto seja um erro, entre em contato com Victor Matos.\nTelefone para contato: (79)99808-0327\nEmail: vmatosgois@gmail.com')
+                
+if __name__ == "__main__":
+    log.create_log()
+    start()
+    
