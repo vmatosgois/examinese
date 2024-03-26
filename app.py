@@ -38,7 +38,6 @@ class App(ctk.CTk):
 
         # Imagens
         
-        image_path = "images"
         self.home = ctk.CTkImage(light_image=img.home_p_final, dark_image=img.home_b_final, size=(25, 25))
         self.lab = ctk.CTkImage(light_image=img.lab_p_final, dark_image=img.lab_b_final, size=(25, 25))
         self.espiro = ctk.CTkImage(light_image=img.lung_p_final, dark_image=img.lung_b_final, size=(25, 25))

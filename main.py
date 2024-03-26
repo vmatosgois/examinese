@@ -126,18 +126,18 @@ def preset(raw, merger = merger):
     
     tokens = raw.split()
     merged = []
-    bugfix = []
-    
-    # BUG FIX - DO NOT REMOVE:
-    datas = datefinder.find_dates(raw, source=True, strict=True)
-    for d in datas:
-        lista_de_datas.append(d[1])
-    
     
     # Limpa caracteres especiais e espaços vazios, deixa tudo capitalizado
     tokens = [elemento.capitalize() for elemento in tokens]
     for _, string in enumerate(tokens):
         tokens[_] = string.strip(':()-,.*#|/%')
+        
+    # BUG FIX - DO NOT REMOVE:
+    
+    datas = datefinder.find_dates(raw, source=True, strict=True)
+    for d in datas:  
+        tokens[tokens.index(d[1])] = tokens[tokens.index(d[1])].replace('.', '/').replace('-', '/')
+        lista_de_datas.append(d[1].replace('.', '/').replace('-', '/'))
     
     # Remove entradas vazias
     for _ in range(tokens.count('')):
