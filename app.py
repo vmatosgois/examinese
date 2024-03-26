@@ -16,10 +16,7 @@ from PIL import Image
 ctk.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 ctk.set_default_color_theme("dark-blue")  # Themes: "blue" (standard), "green", "dark-blue"
 version = 'Piloto (beta v0.7)'
-user = 'admin'
-if os.path.exists('user.txt'): 
-    with open("user.txt", "r", encoding='utf-8') as file:
-        user = file.read()
+user = 'Victor Matos'
 
 class App(ctk.CTk):
     def __init__(self):
@@ -124,8 +121,7 @@ class App(ctk.CTk):
         self.subtitulo = ctk.CTkLabel(self.home_frame, text= "Este é um projeto desenvolvido\n como parte do Trabalho de Conclusão de Curso \ndo Curso de Medicina de Victor Matos Gois. \n\n Para começar, por favor escolha uma das opções no menu à esquerda.", font=ctk.CTkFont(size=20))
         self.subtitulo.grid(row= 1, column=1, padx= 20, pady= 20)
        
-        self.ufslogo = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "ufs_horizontal_preta.png")),
-                                  dark_image=Image.open(os.path.join(image_path, "ufs_horizontal_branca.png")), size= (275, 112))
+        self.ufslogo = ctk.CTkImage(light_image=img.ufs_p_final, dark_image=img.ufs_b_final, size= (275, 112))
         self.ufs = ctk.CTkLabel(self.home_frame, text='', image=self.ufslogo ,anchor='s')
         self.ufs.grid(row= 3, column= 1, padx=20, pady= 20)
         
@@ -333,6 +329,8 @@ Insira seus exames no campo abaixo')
         self.calc_button.configure(fg_color=("gray75", "gray25") if frame == "calc" else "transparent")
         self.help_button.configure(fg_color=("gray75", "gray25") if frame == "help" else "transparent")
 
+        logger.info(f'Alterado para página {frame}')
+        
         # Exibir
         if frame == "home":
             self.home_frame.grid(row=0, column= 1, rowspan=5, columnspan= 5 ,sticky= 'nsew')
@@ -385,13 +383,17 @@ Insira seus exames no campo abaixo')
         else:
             new_appearance_mode = 'System'
         ctk.set_appearance_mode(new_appearance_mode)
+        
+        logger.info(f'Tema alterado para {new_appearance_mode}')
 
     def change_scaling_event(self, new_scaling: str):
         new_scaling_float = int(new_scaling.replace("%", "")) / 100
         ctk.set_widget_scaling(new_scaling_float)
+        logger.info(f'Escala alterada para: {new_scaling_float}')
     
     def abrir_link(self):
         webbrowser.open('https://forms.gle/YEPhf3DAVcMSvS7W9')
+        logger.info('Utilizado formulário')
         
     # Botões de finalizar
     @logger.catch
@@ -418,9 +420,15 @@ Insira seus exames no campo abaixo')
             
             self.message()
             
+            logger.success('Exames processados com sucesso')
+            
+            logger.info(f'Texto inicial:\n\n{entry}\n\nSaída:\n\n{output}')
+            
             return entry
         else:
             tkinter.messagebox.showwarning('Erro', 'Por favor, insira o texto.')
+            
+            logger.erro('Nenhum texto inserido')
             
     @logger.catch    
     def lab_button_new(self):
@@ -432,6 +440,8 @@ Insira seus exames no campo abaixo')
         self.lab_concluir.configure(text= 'Concluir', command= self.lab_button_concluir)
         
         self.remove_message()
+        
+        logger.info('Novo texto')
    
     @logger.catch    
     def lab_button_undo(self):
@@ -446,6 +456,8 @@ Insira seus exames no campo abaixo')
         self.textbox.insert('0.0', entry)
         
         self.remove_message()
+        
+        logger.info('Retornado ao texto original')
     
     @logger.catch    
     def espiro_button_concluir(self):
@@ -470,6 +482,9 @@ Insira seus exames no campo abaixo')
                 self.create_copy(es.valores, output)
                 
         self.message()
+        
+        logger.success('Espirometria formatada com sucesso')
+        logger.info(f'Variáveis e resultados:\n\n{es.valores}\n\n{output}')
     
     @logger.catch    
     def ckdepi_button_concluir(self):
@@ -492,8 +507,13 @@ Insira seus exames no campo abaixo')
             pyperclip.copy(self.ckdepi_result.get('0.0', 'end-1c'))
             
             self.message()
+            
+            logger.success(f'TFG calculado com sucesso\n{self.ckdepi_result.get()}')
         else: 
             tkinter.messagebox.showwarning('Erro', 'Por favor, preencha todos os campos.')
+            
+            logger.warning('Campos não preenchidos encontrados')
+            logger.info(f'Variáveis atuais: Idade: {idade}, Sexo: {sexo}, Creat: {creat} ')
 
     # Outras funções:
     
@@ -512,7 +532,8 @@ Insira seus exames no campo abaixo')
         name = time.strftime("%d-%m-%Y %H-%M-%S", t)
         with open(f'copias/{name}.txt', 'x', encoding='utf-8') as history:
             history.write(f'Entrada:\n{text1}\n\nSaída:\n{text2}')
-
+        
+        logger.success('Cópia criada com sucesso')
 
 @logger.catch        
 def start():
@@ -520,10 +541,12 @@ def start():
     if due_date[1] < 7:
         history_path= "copias"
         if not os.path.exists(history_path): os.makedirs(history_path)
+        logger.success(f'Inicializado com sucesso. Usuário: {user}')
         app = App()
         app.mainloop()
     else:
         tkinter.messagebox.showinfo(title= 'Fim de período de testes', message='O período de testes foi encerrado.\nObrigado pela sua participação na pesquisa.\nCaso acredite que isto seja um erro, entre em contato com Victor Matos.\nTelefone para contato: (79)99808-0327\nEmail: vmatosgois@gmail.com')
+        logger.critical(f'Tentativa de inicializar após fim de fase de testes. Usuário: {user}')
                 
 if __name__ == "__main__":
     log.create_log()

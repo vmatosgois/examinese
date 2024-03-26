@@ -7,7 +7,7 @@
   },
   {
    "optionDest": "filenames",
-   "value": "C:/Users/victo/Desktop/Python/examinese/Interface.py"
+   "value": "C:/Users/victo/Desktop/Python/examinese/app.py"
   },
   {
    "optionDest": "onefile",
@@ -56,10 +56,6 @@
   {
    "optionDest": "copy_metadata",
    "value": "table2ascii"
-  },
-  {
-   "optionDest": "datas",
-   "value": "C:/Users/victo/Desktop/Python/examinese/images;images/"
   },
   {
    "optionDest": "hiddenimports",

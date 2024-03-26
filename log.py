@@ -13,4 +13,4 @@ def create_log():
     day_path = f'logs/{current_day}'
     if not os.path.exists(day_path): os.mkdir(day_path)
 
-    logger.add(f'{day_path}/{current_day} {current_time}.txt')
+    logger.add(f'{day_path}/{current_day} {current_time}.log')
