@@ -14,6 +14,7 @@ demo.txt
 # Distribution / packaging
 .Python
 build/
+HideMyCode/
 develop-eggs/
 output/
 dist/
