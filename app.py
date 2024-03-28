@@ -16,7 +16,7 @@ from PIL import Image
 ctk.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 ctk.set_default_color_theme("dark-blue")  # Themes: "blue" (standard), "green", "dark-blue"
 version = 'Piloto (beta v0.7)'
-user = 'Victor Matos'
+user = 'Rafael Vieira Souza Dias'
 
 class App(ctk.CTk):
     def __init__(self):
@@ -536,8 +536,8 @@ Insira seus exames no campo abaixo')
 
 @logger.catch        
 def start():
-    due_date = time.localtime()    
-    if due_date[1] < 7:
+    due_date = time.localtime()
+    if due_date[2] < 30:
         history_path= "copias"
         if not os.path.exists(history_path): os.makedirs(history_path)
         logger.success(f'Inicializado com sucesso. Usuário: {user}')

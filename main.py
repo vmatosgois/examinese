@@ -30,7 +30,7 @@ espelho = { 'Hm': ['Hm'],
             'Monócitos': ['Monócitos', 'Mono', 'Mon'],
             'Basófilos': ['Basófilos', 'Baso', 'Bas'],
             'Linf._Atípicos': ['Atípicos'],
-            'Plaquetas': ['Plaquetas', 'Plaq', 'Pqt'],
+            'Plaquetas': ['Plaquetas', 'Plaq', 'Pqt', 'plq'],
             'LDH': ['LDH', 'DHL'],
             'VHS': ['VHS', 'Hemossedimentação', 'Hemosse'],
             'PCR': ['PCR'],
@@ -106,10 +106,18 @@ def boot():
     raw = '''(29/03/2022: HB 14,0 HT 43,3 LEUCO 9495 NEUT 40% (3798) LINFO 53% (5032) PLAQ 321800 | ACIDO URICO 3,8 | CALCIO SRICO 9,6 | HDL 81 | LDL 58 | CT 163 | CREAT 0,8 | CPK 73 | P 5,3 | GJ 109 | HBA1C 6,0% EDTA | MG 2,4 | K 4,1 | NA 140 | TGL 119 | UREIA 43 | 
 28/12/2021): HB 15.2 HT 45 LEUCO 5300 PLAQ 298000 GJ 118 CREAT 0,98 AC URIC 3.2 HDL 53 LDL 86 CT 165 GJ 112 TG 130 U 29 TGO 30 CA 9.2 TGP 16 HB1AC 5.7% VITD 33 TSH 2,66 T4L 0,88 EAS NDN 
 (17/01/2023): hb 15.3 ht 46 leuco 7200 plq 236300 tgp 16 tgo 20 hdl 59 ldl 48 ct 130 cr 0.9 cpk 101 gj 97 pos prandial 113 hba1c 5.8 mg 2.3 ca s 10.1 k 4.3 pt 6.8 alb 4.5 glob 2.3 a/g 2.0 na 139 tgl 114 ur 25 t4 livre 0.98 tsh 2.2 **vit d 27 EAS sem alterações
-(01/02/23): Hb 13,1 Ht 39 Leuco 7400 Plaquetas 338000 Creat 1,2 (CKEDIP) Sódio 144 Glicose 89 Potássio 4,1 col tot 182 Ldl 60 IGF-1 354 BNF 12345 Troponina Ultra 12345 CPKMB 12345
 '''
         
     return raw
+
+def clear_variables():
+    """Limpa as variáveis do programa a cada nova execução
+    """
+    global lista_de_datas, lista_remover, master
+    
+    lista_de_datas.clear()
+    lista_remover.clear()
+    master = {}
 
 def preset(raw, merger = merger):
     """Essa função faz a primeira passagem de reconhecimento do texto em exames de mais de duas palavras,
@@ -212,24 +220,23 @@ def processar_datas(texto):
     """
     
     global lista_de_datas, lista_remover
-    
-    # Cria uma lista de datas - Suspenso devido a bug com função de datas
-    
-    # datas = datefinder.find_dates(texto, source=True, strict=True, first='day')
-    # for d in datas:
-    #     lista_de_datas.append(d[1])
 
     texto = texto.split()
 
     # Listar palavras a serem removidas
     was_alpha = False
     for index, linha in enumerate(texto):
-        if is_word(linha) and was_alpha == False:
+        
+        if is_word(linha) and index == len(texto) - 1:
+            lista_remover.append(index)
+            if was_alpha:
+                lista_remover.append(index-1)
+        elif is_word(linha) and was_alpha == False:
             was_alpha = True
-        elif linha in lista_de_datas and was_alpha == True:
+        elif linha in lista_de_datas and was_alpha:
             lista_remover.append(index - 1)
             was_alpha = False
-        elif is_word(linha) and was_alpha == True:
+        elif is_word(linha) and was_alpha:
             lista_remover.append(index - 1)
         elif was_alpha == True and index+1<len(texto) and linha.isnumeric() and texto[index+1].isnumeric() and not texto[index+2].isnumeric():
             texto[index] = (texto[index], texto[index+1])
@@ -309,7 +316,9 @@ def tinder(master):
             exam_value = master[key][i+1] if i+1 < len(master[key]) else '-'
             if exam_name not in exams:
                 exams[exam_name] = ['-'] * len(master)
-            exams[exam_name][list(master.keys()).index(key)] = int(float(exam_value.replace(',', '.'))) if type(exam_value) == str and float(exam_value.replace(',', '.')) == int(float(exam_value.replace(',', '.'))) else float(exam_value.replace(',', '.')) if type(exam_value) == str else exam_value 
+            exams[exam_name][list(master.keys()).index(key)] = int(float(exam_value.replace(',', '.'))) \
+                if type(exam_value) == str and float(exam_value.replace(',', '.')) == int(float(exam_value.replace(',', '.'))) else \
+                    float(exam_value.replace(',', '.')) if type(exam_value)==str else exam_value 
 
     return exams
 
@@ -385,6 +394,7 @@ def main(entry):
         raw = boot()
     else:
         raw = entry
+    clear_variables()
     merged = preset(raw)
     texto = corretor(merged)
     texto_exames = processar_datas(texto)
@@ -393,12 +403,6 @@ def main(entry):
     sorted = sort(exams)
     corpo = doc(sorted)
     final = gerartabela(corpo, topo)
-    
-    # Limpeza de variáveis:
-    
-    lista_de_datas.clear()
-    lista_remover.clear()
-    master = {}
     
     return final
     
