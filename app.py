@@ -16,7 +16,7 @@ from PIL import Image
 ctk.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 ctk.set_default_color_theme("dark-blue")  # Themes: "blue" (standard), "green", "dark-blue"
 version = 'Piloto (beta v0.7)'
-user = 'Rafael Vieira Souza Dias'
+user = 'Victor'
 
 class App(ctk.CTk):
     def __init__(self):
@@ -427,7 +427,7 @@ Insira seus exames no campo abaixo')
         else:
             tkinter.messagebox.showwarning('Erro', 'Por favor, insira o texto.')
             
-            logger.erro('Nenhum texto inserido')
+            logger.error('Nenhum texto inserido')
             
     @logger.catch    
     def lab_button_new(self):

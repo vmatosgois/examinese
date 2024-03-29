@@ -151,7 +151,7 @@ def tabela(corpo, topo):
         body=corpo,
         footer=['© Victor Matos, 2024'] + [Merge.LEFT]*(len(topo)-1),
         style=PresetStyle.minimalist
-    ).replace('─','—').replace('━','=')
+    ).replace('─','=').replace('━','=')
     return tabela
 
 def main(valores):

@@ -2,7 +2,7 @@ from table2ascii import table2ascii, PresetStyle, Merge, Alignment
 import datefinder #Atentar para datas incompletas, não contempladas por essa biblioteca
 from datetime import datetime
 from fuzzywuzzy import process # python-Levenshtein / rapidfuzz?
-import toolboxy as tb
+from loguru import logger
 
 # Variaveis pré-declaradas
 
@@ -30,21 +30,22 @@ espelho = { 'Hm': ['Hm'],
             'Monócitos': ['Monócitos', 'Mono', 'Mon'],
             'Basófilos': ['Basófilos', 'Baso', 'Bas'],
             'Linf._Atípicos': ['Atípicos'],
-            'Plaquetas': ['Plaquetas', 'Plaq', 'Pqt', 'plq'],
+            'Plaquetas': ['Plaquetas', 'Plaq', 'Pqt', 'plq', 'plt'],
             'LDH': ['LDH', 'DHL'],
             'VHS': ['VHS', 'Hemossedimentação', 'Hemosse'],
             'PCR': ['PCR'],
             'Colest._Total': ['CT', 'Colesterol Total', 'ColesT', 'Col total'],
             'HDL': ['Hdl'],
-            'LDL': ['Ldl'], 
-            'Triglicérides': ['TGL', 'Triglicérides', 'Trigli'],
+            'LDL': ['Ldl'],
+            'VLDL': ['Vldl'],
+            'Triglicérides': ['TGL', 'Triglicérides', 'Trigli', 'Tgc'],
             'CPK': ['CPK'],
             'CPK-MB': ['CPKMB', 'CKMB'],
             'Troponina': ['Troponina', 'Tropo'],
             'BNF': ['BNF'],
             'Ferro': ['Ferro', 'Fe'],
             'Ferritina': ['Ferritina'],
-            'Sat._Transf.': ['Transferrina', 'Transfer'],
+            'Sat._Transf.(%)': ['Transferrina', 'Transfer'],
             'TIBIC': ['TIBIC'],
             'B12': ['B12'],
             'Ác._Fólico': ['Fólico', 'Ácido Fólico'],
@@ -59,7 +60,7 @@ espelho = { 'Hm': ['Hm'],
             'Cálcio_Ionizável': ['Cálcio Ionizável', 'Ca Ionizável'],
             'Magnésio': ['Mg', 'Magnésio'],
             'Cloro': ['Cl', 'Cloro'],
-            'Proteínas': ['Proteínas', 'Ptn', 'Prot'],
+            'Proteínas': ['PT', 'Proteínas', 'Ptn', 'Prot'],
             'Albumina': ['Albumina', 'Alb', 'Albu'],
             'Globulina': ['Globulina', 'Glob', 'Globu'],
             'Relação_A/G': ['a/g'],
@@ -76,14 +77,21 @@ espelho = { 'Hm': ['Hm'],
             'TTPA': ['TTPA'],
             'Ratio': ['Ratio'],
             'TAP': ['TAP'],
+            'TP': ['TP'],
             'TS': ['TS', 'Sangramento'],
             'TC': ['TC', 'Coagulação'],
             'Glicemia_Jejum': ['GJ', 'Glicemia', 'Jejum', 'Glicemia de Jejum', 'Glicose'],
             'Glicemia_Pós-P': ['GPP', 'Prandial'],
-            'Glicada': ['Hemoglobina Glicada', 'HBA1C', 'Glicada'], 
+            'Glicada(%)': ['Hemoglobina Glicada', 'HBA1C', 'Glicada', 'Hbglic'], 
             'TSH': ['TSH'],
             'T4_Livre': ['T4 Livre', 'T4L'],
-            'Vitamina_D': ['VitD', '25OHD', 'Vitamina D', 'VitD-Direta']
+            'Tireoglobulina': ['Tireoglobulina', 'Tireoglob'],
+            'Vitamina_D': ['VitD', '25OHD', 'Vitamina D', 'VitD-Direta'],
+            'CA_15.3': ['CA15.3'],
+            'CA_19.9': ['CA19.9'],
+            'CA_125': ['CA125'],
+            'Alfa_Feto': ['Alfafeto','Feto', 'Afp', 'Alfafetoproteina'],
+            'Insulina': ['Insulina']
             }
 
 merger = {'Sérico': ['Sérico', 'Serico', 'Seri'],
@@ -92,7 +100,7 @@ merger = {'Sérico': ['Sérico', 'Serico', 'Seri'],
           'Total': ['Total'],
           'Livre:': ['Livre'],
           'Ureia': ['Ureia', 'Ur'],
-          'Úrico': ['Urico', 'Uric'],
+          'Úrico': ['Urico', 'Uric', 'Úrico'],
           'Ultra': ['Ultra'],
           'Urinário': ['Urinário', 'Urinária'],
           'Direta': ['Direta', 'Dir', 'Dir'],
@@ -103,9 +111,13 @@ merger = {'Sérico': ['Sérico', 'Serico', 'Seri'],
 
 def boot():
     
-    raw = '''(29/03/2022: HB 14,0 HT 43,3 LEUCO 9495 NEUT 40% (3798) LINFO 53% (5032) PLAQ 321800 | ACIDO URICO 3,8 | CALCIO SRICO 9,6 | HDL 81 | LDL 58 | CT 163 | CREAT 0,8 | CPK 73 | P 5,3 | GJ 109 | HBA1C 6,0% EDTA | MG 2,4 | K 4,1 | NA 140 | TGL 119 | UREIA 43 | 
-28/12/2021): HB 15.2 HT 45 LEUCO 5300 PLAQ 298000 GJ 118 CREAT 0,98 AC URIC 3.2 HDL 53 LDL 86 CT 165 GJ 112 TG 130 U 29 TGO 30 CA 9.2 TGP 16 HB1AC 5.7% VITD 33 TSH 2,66 T4L 0,88 EAS NDN 
-(17/01/2023): hb 15.3 ht 46 leuco 7200 plq 236300 tgp 16 tgo 20 hdl 59 ldl 48 ct 130 cr 0.9 cpk 101 gj 97 pos prandial 113 hba1c 5.8 mg 2.3 ca s 10.1 k 4.3 pt 6.8 alb 4.5 glob 2.3 a/g 2.0 na 139 tgl 114 ur 25 t4 livre 0.98 tsh 2.2 **vit d 27 EAS sem alterações
+    raw = '''27/05/2022  Ca 9,5   Cl 0,3  K 4,7   Na 142    U 29  T4 livre 0,96   TSH 1,71
+
+Hb 11,3  Ht 36,9  VCM 86  HCM 26,3  CHCM 30,6  RDW 14,6  Leuco 7764  Seg 54  Eos 2  LInfo 36  Mono 7  Plaq 421700
+
+TTPA rel 1,1   TP  82%  INR 1,13   TGP 13   TGO 254   FA 596   Sat transf 33   PCR 4,5  (<5,0)
+
+Ptn 7,6  Alb 4,2  VitD 46,5  Ferritina 26,08  Vit B12 1097
 '''
         
     return raw
@@ -138,11 +150,11 @@ def preset(raw, merger = merger):
     # Limpa caracteres especiais e espaços vazios, deixa tudo capitalizado
     tokens = [elemento.capitalize() for elemento in tokens]
     for _, string in enumerate(tokens):
-        tokens[_] = string.strip(':()-,.*#|/%')
+        tokens[_] = string.strip(':;()-,.*#|/%><').replace('(', ' ').replace(')', ' ').replace(':', ' ').replace('<', ' ').replace('>', ' ')
         
     # BUG FIX - DO NOT REMOVE:
     
-    datas = datefinder.find_dates(raw, source=True, strict=True)
+    datas = datefinder.find_dates(raw, source=True, strict=True, first='day')
     for d in datas:  
         tokens[tokens.index(d[1])] = tokens[tokens.index(d[1])].replace('.', '/').replace('-', '/')
         lista_de_datas.append(d[1].replace('.', '/').replace('-', '/'))
@@ -238,7 +250,7 @@ def processar_datas(texto):
             was_alpha = False
         elif is_word(linha) and was_alpha:
             lista_remover.append(index - 1)
-        elif was_alpha == True and index+1<len(texto) and linha.isnumeric() and texto[index+1].isnumeric() and not texto[index+2].isnumeric():
+        elif was_alpha == True and index+1<len(texto) and linha.replace(',', '').replace('.', '').isnumeric() and texto[index+1].replace(',', '').replace('.', '').isnumeric() and not texto[index+2].replace(',', '').replace('.', '').isnumeric():
             texto[index] = (texto[index], texto[index+1])
             lista_remover.append(index+1)
             was_alpha == False
@@ -247,7 +259,6 @@ def processar_datas(texto):
 
     texto_exames = texto 
     return texto_exames   
-
 
 def spliter(texto_exames):
     """Separa exames em um dicionário por data.
@@ -316,9 +327,10 @@ def tinder(master):
             exam_value = master[key][i+1] if i+1 < len(master[key]) else '-'
             if exam_name not in exams:
                 exams[exam_name] = ['-'] * len(master)
-            exams[exam_name][list(master.keys()).index(key)] = int(float(exam_value.replace(',', '.'))) \
-                if type(exam_value) == str and float(exam_value.replace(',', '.')) == int(float(exam_value.replace(',', '.'))) else \
-                    float(exam_value.replace(',', '.')) if type(exam_value)==str else exam_value 
+            exams[exam_name][list(master.keys()).index(key)] = exam_value 
+                #     exams[exam_name][list(master.keys()).index(key)] = int(float(exam_value.replace(',', '.'))) \
+                # if type(exam_value) == str and float(exam_value.replace(',', '.')) == int(float(exam_value.replace(',', '.'))) else \
+                #     float(exam_value.replace(',', '.')) if type(exam_value)==str else exam_value 
 
     return exams
 
@@ -373,11 +385,11 @@ def gerartabela(corpo, topo):
         body=corpo,
         # footer=["SUM", "130", "140", "135", "130"],
         alignments=Alignment.LEFT,
-        number_alignments= Alignment.CENTER,
+        number_alignments= Alignment.LEFT,
         style=PresetStyle.minimalist #thin_thick  # minimalist
     )
     
-    output = tabela.replace('─','—').replace('━','=').replace(' - ', '   ')
+    output = tabela.replace('-    ', '#####').replace('─', '=').replace('━', '=')
     return output
 
 def main(entry):
