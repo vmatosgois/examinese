@@ -9,14 +9,14 @@ import time
 import pyperclip
 import log
 import espiro as es
-import images as img
+import user
 from loguru import logger
 from PIL import Image
 
 ctk.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 ctk.set_default_color_theme("dark-blue")  # Themes: "blue" (standard), "green", "dark-blue"
-version = 'Piloto (beta v0.7)'
-user = 'Victor'
+version = 'Piloto (beta v0.7) - VMG'
+user = user.user
 
 class App(ctk.CTk):
     def __init__(self):
@@ -38,12 +38,22 @@ class App(ctk.CTk):
 
         # Imagens
         
-        self.home = ctk.CTkImage(light_image=img.home_p_final, dark_image=img.home_b_final, size=(25, 25))
-        self.lab = ctk.CTkImage(light_image=img.lab_p_final, dark_image=img.lab_b_final, size=(25, 25))
-        self.espiro = ctk.CTkImage(light_image=img.lung_p_final, dark_image=img.lung_b_final, size=(25, 25))
-        self.calc = ctk.CTkImage(light_image=img.calc_p_final, dark_image=img.calc_b_final, size=(25, 25))
-        self.config = ctk.CTkImage(light_image=img.config_p_final, dark_image=img.config_b_final, size=(25, 25))
-        self.help = ctk.CTkImage(light_image=img.ajuda_p_final, dark_image=img.ajuda_b_final, size=(25, 25))                  
+        
+        image_path = "images"
+        self.home = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "Home_preta.png")),
+                                                 dark_image=Image.open(os.path.join(image_path, "Home_branca.png")), size=(25, 25))
+        self.lab = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "Lab_preta.png")),
+                                                 dark_image=Image.open(os.path.join(image_path, "Lab_branca.png")), size=(25, 25))
+        self.espiro = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "lung_preta.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "lung_branca.png")), size=(25, 25))
+        self.calc = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "Calc_preta.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "Calc_branca.png")), size=(25, 25))
+        self.config = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "Config_preta.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "Config_branca.png")), size=(25, 25))
+        self.help = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "Ajuda_preta.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "Ajuda_branca.png")), size=(25, 25))
+        self.ufslogo = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "ufs_horizontal_preta.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "ufs_horizontal_branca.png")), size= (275, 112))             
         
         # Barra lateral
 
@@ -120,7 +130,6 @@ class App(ctk.CTk):
         self.subtitulo = ctk.CTkLabel(self.home_frame, text= "Este é um projeto desenvolvido\n como parte do Trabalho de Conclusão de Curso \ndo Curso de Medicina de Victor Matos Gois. \n\n Para começar, por favor escolha uma das opções no menu à esquerda.", font=ctk.CTkFont(size=20))
         self.subtitulo.grid(row= 1, column=1, padx= 20, pady= 20)
        
-        self.ufslogo = ctk.CTkImage(light_image=img.ufs_p_final, dark_image=img.ufs_b_final, size= (275, 112))
         self.ufs = ctk.CTkLabel(self.home_frame, text='', image=self.ufslogo ,anchor='s')
         self.ufs.grid(row= 3, column= 1, padx=20, pady= 20)
         
@@ -401,6 +410,18 @@ Insira seus exames no campo abaixo')
         global entry
             
         entry = self.textbox.get("0.0", 'end-1c')
+        
+        if entry == 'manual' or entry == 'ajuda':
+            webbrowser.open('https://docs.google.com/document/d/1rHwWAn6K5hCDsYqoPJg-8fazkHrttzUOBVDk8ypjbI8/')
+            logger.info('Solicitado manual do usuário')
+            
+            return
+        
+        if entry == 'creditos':
+            tkinter.messagebox.showinfo('Créditos', message= 'Créditos\n\nDesenvolvido por Victor Matos\n\nAgradecimento especial: Luiz Paulo Lima e Silva\nPor sua contribuição indispensável na criação desse aplicativo.')
+            
+            return
+        
         if entry != '':
             output = soft.main(entry)
             self.textbox.delete("0.0", "end")
@@ -537,7 +558,7 @@ Insira seus exames no campo abaixo')
 @logger.catch        
 def start():
     due_date = time.localtime()
-    if due_date[2] < 30:
+    if due_date[1] < 6:
         history_path= "copias"
         if not os.path.exists(history_path): os.makedirs(history_path)
         logger.success(f'Inicializado com sucesso. Usuário: {user}')

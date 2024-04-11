@@ -63,7 +63,7 @@ espelho = { 'Hm': ['Hm'],
             'Proteínas': ['PT', 'Proteínas', 'Ptn', 'Prot'],
             'Albumina': ['Albumina', 'Alb', 'Albu'],
             'Globulina': ['Globulina', 'Glob', 'Globu'],
-            'Relação_A/G': ['a/g'],
+            'Relação_A/G': ['a/g', 'albumina/creatinina'],
             'Bili_Total': ['Bt', 'Bilirrubina Total'],
             'Bili_Direta': ['Bd', 'Bilirrubina Direta'],
             'Bili_Indireta': ['Bi', 'Bilirrubina Indireta'],
@@ -109,7 +109,7 @@ merger = {'Sérico': ['Sérico', 'Serico', 'Seri'],
           }
 
 
-def boot():
+def demo():
     
     raw = '''27/05/2022  Ca 9,5   Cl 0,3  K 4,7   Na 142    U 29  T4 livre 0,96   TSH 1,71
 
@@ -130,10 +130,29 @@ def clear_variables():
     lista_de_datas.clear()
     lista_remover.clear()
     master = {}
+    
+def add_text(fulltext):
+    """Certifica-se que haja texto antecedendo as datas para que a biblioteca de datas reconheça os valores
+    adequadamente.
+
+    Args:
+        fulltext (str): Texto original
+
+    Returns:
+        str: Texto com a string ' lab ' acrescentado a cada linha
+    """
+    
+    added = fulltext.splitlines()
+    
+    for _ in range(added.count('')):
+        added.remove('')
+    
+    return ' labVM '.join(added)
+        
 
 def preset(raw, merger = merger):
     """Essa função faz a primeira passagem de reconhecimento do texto em exames de mais de duas palavras,
-    remove caracteres especiais e retorna um texto reformulado.
+    remove caracteres especiais e retorna um texto reformulado. Além disso, prepara o texto para a execução do reconhecimento, removendo caracteres especiais e afins.
 
     Args:
         raw (str): Texto original
@@ -275,23 +294,14 @@ def spliter(texto_exames):
     
     master = {}
     
-    #Tá confuso, mas funciona
-    index = list()
-    for d in lista_de_datas:
-        index.append(texto_exames.index(d))
-    
-    #Lembrar de otimizar depois (Ele passa pelo mesmo número duas vezes)
+    # Indexa linhas cujos índices não estejam presentes na lista de palavras a remover
     for i, line in enumerate(texto_exames):
         if line in lista_de_datas:
             master[line] = list()
-            i = i+1
-            while i not in index:
-                if i not in lista_remover:
-                    master[line].append(texto_exames[i])
-                if i + 1 < len(texto_exames):
-                    i = i+1
-                else:
-                    break
+            current_date = line
+            continue
+        if i not in lista_remover:
+                master[current_date].append(texto_exames[i])
                 
     # Converter as chaves do dicionário para o formato de data
     datas_formatadas = {datetime.strptime(data, '%d/%m/%y' if len(data) == 8 else '%d/%m/%Y'): valor for data, valor in master.items()}
@@ -403,10 +413,12 @@ def main(entry):
     """
     
     if entry == 'demo':
-        raw = boot()
+        raw = demo()
     else:
         raw = entry
+        
     clear_variables()
+    raw = add_text(raw)
     merged = preset(raw)
     texto = corretor(merged)
     texto_exames = processar_datas(texto)
