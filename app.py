@@ -318,7 +318,10 @@ Insira seus exames no campo abaixo')
         self.info_text.grid(row= 2, column=3, padx=20, sticky='nsew')
         
         self.button_forms = ctk.CTkButton(self.help_frame, text= 'Clique aqui para entrar em contato via Google Forms',fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), hover_color=('gray70', 'gray30'), font=ctk.CTkFont(size=16), command=self.abrir_link)
-        self.button_forms.grid(row= 3, column= 3, sticky= 'n')        
+        self.button_forms.grid(row= 3, column= 3, sticky= 'n')
+        
+        self.button_manual = ctk.CTkButton(self.help_frame, text= 'Manual do Usuário/Tutoriais',fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), hover_color=('gray70', 'gray30'), font=ctk.CTkFont(size=16), command=self.abrir_link_ajuda)
+        self.button_manual.grid(row= 4, column= 3, sticky= 'n', pady= 20)           
 
         # Valores padrão
         self.svcopia_lab.select()
@@ -403,6 +406,10 @@ Insira seus exames no campo abaixo')
         webbrowser.open('https://forms.gle/YEPhf3DAVcMSvS7W9')
         logger.info('Utilizado formulário')
         
+    def abrir_link_ajuda(self):
+        webbrowser.open('https://docs.google.com/document/d/1rHwWAn6K5hCDsYqoPJg-8fazkHrttzUOBVDk8ypjbI8/')
+        logger.info('Solicitado manual do usuário')
+        
     # Botões de finalizar
     @logger.catch
     def lab_button_concluir(self):
@@ -412,8 +419,7 @@ Insira seus exames no campo abaixo')
         entry = self.textbox.get("0.0", 'end-1c')
         
         if entry == 'manual' or entry == 'ajuda':
-            webbrowser.open('https://docs.google.com/document/d/1rHwWAn6K5hCDsYqoPJg-8fazkHrttzUOBVDk8ypjbI8/')
-            logger.info('Solicitado manual do usuário')
+            self.abrir_link_ajuda()
             
             return
         
@@ -423,28 +429,33 @@ Insira seus exames no campo abaixo')
             return
         
         if entry != '':
-            output = soft.main(entry)
-            self.textbox.delete("0.0", "end")
-            self.textbox.insert("0.0", output)
-            
-            pyperclip.copy(output)
-            
-            if self.svcopia_lab.get() == 1:
-                self.create_copy(entry, output)
-            
-            self.textbox.configure(state='disabled')
-            
-            self.lab_concluir.configure(text= 'Novo texto', command= self.lab_button_new)
-            
-            self.lab_undo_button.grid(row= 4, column= 0, padx=(20, 20), pady=(20, 20), sticky="w")
-            
-            self.message()
-            
-            logger.success('Exames processados com sucesso')
-            
-            logger.info(f'Texto inicial:\n\n{entry}\n\nSaída:\n\n{output}')
-            
-            return entry
+            try:
+                output = soft.main(entry)
+                self.textbox.delete("0.0", "end")
+                self.textbox.insert("0.0", output)
+                
+                pyperclip.copy(output)
+                
+                if self.svcopia_lab.get() == 1:
+                    self.create_copy(entry, output)
+                
+                self.textbox.configure(state='disabled')
+                
+                self.lab_concluir.configure(text= 'Novo texto', command= self.lab_button_new)
+                
+                self.lab_undo_button.grid(row= 4, column= 0, padx=(20, 20), pady=(20, 20), sticky="w")
+                
+                self.message()
+                
+                logger.success('Exames processados com sucesso')
+                
+                logger.info(f'Texto inicial:\n\n{entry}\n\nSaída:\n\n{output}')
+                
+                return entry
+            except:
+                tkinter.messagebox.showerror('Erro', message='Por favor, verifique o texto inserido e tente novamente.\n\nAtente-se ao preenchimento correto das datas.\nPara maiores informações, consulte a seção "Ajuda".\n\nSe o erro persistir, contate o desenvolvedor.')
+                
+                logger.critical('Falha grave no processamento do texto')
         else:
             tkinter.messagebox.showwarning('Erro', 'Por favor, insira o texto.')
             
