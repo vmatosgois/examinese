@@ -108,10 +108,10 @@ def refine (valores):
     
     topo = ['DATA:', valores['DATA'], 'ESPIROMETRIA', Merge.LEFT, Merge.LEFT, Merge.LEFT, Merge.LEFT]
     
-    corpo=[   ["CVF:", "Pré:", valores['PRE_CVF'], 'Prev.: >', valores['CVF_PREVISTO'], "Pós:", valores['POS_CVF']],
-              ["FEV1:", "Pré:", valores['PRE_FEV1'], 'Prev.: >', valores['FEV1_PREVISTO'], "Pós:", valores['POS_FEV1']],
-              ['FEV1/CVF:', valores['FEV1/CVF'], 'Prev.: >', valores['FEV1/CVF_PREVISTO']]+ [Merge.LEFT]*(len(topo)-4),
-              ['FEF 25-75%:', 'Pré:', valores['PRE_FEF2575'], 'Prev.: >', valores['FEF2575_PREVISTO'], 'Pós:', valores['POS_FEF2575']],
+    corpo=[   ["CVF:", "Pré:", valores['PRE_CVF'], 'Prev.:', valores['CVF_PREVISTO'], "Pós:", valores['POS_CVF']],
+              ["FEV1:", "Pré:", valores['PRE_FEV1'], 'Prev.:', valores['FEV1_PREVISTO'], "Pós:", valores['POS_FEV1']],
+              ['FEV1/CVF:', valores['FEV1/CVF'], 'Prev.:', valores['FEV1/CVF_PREVISTO']]+ [Merge.LEFT]*(len(topo)-4),
+              ['FEF 25-75%:', 'Pré:', valores['PRE_FEF2575'], 'Prev.:', valores['FEF2575_PREVISTO'], 'Pós:', valores['POS_FEF2575']],
               ['FEF 25-75%/CVF:', valores['FEF2575/CVF']]+ [Merge.LEFT]*(len(topo)-2)]
 
     per_line = [[valores['PRE_CVF'], valores['CVF_PREVISTO'], valores['POS_CVF']],

@@ -394,7 +394,7 @@ def gerartabela(corpo, topo):
     tabela = table2ascii(
         header=topo,
         body=corpo,
-        # footer=["SUM", "130", "140", "135", "130"],
+        footer=['© Victor Matos, 2024'] + [Merge.LEFT]*(len(topo)-1),
         alignments=Alignment.LEFT,
         number_alignments= Alignment.LEFT,
         style=PresetStyle.minimalist #thin_thick  # minimalist
