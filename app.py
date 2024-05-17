@@ -15,7 +15,7 @@ from PIL import Image
 
 ctk.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 ctk.set_default_color_theme("dark-blue")  # Themes: "blue" (standard), "green", "dark-blue"
-version = 'Piloto (beta v0.7) - VMG'
+version = 'Piloto (beta v0.7.1) - VMG'
 user = user.user
 
 class App(ctk.CTk):
@@ -492,6 +492,7 @@ Insira seus exames no campo abaixo')
     
     @logger.catch    
     def espiro_button_concluir(self):
+        check = True
         
         es.valores['DATA'] = self.data_entry.get()
         es.valores['PRE_CVF'] = self.pre_cvf_entry.get()
@@ -504,18 +505,27 @@ Insira seus exames no campo abaixo')
         es.valores['PRE_FEF2575'] = self.pre_fef2575_entry.get()
         es.valores['FEF2575_PREVISTO'] = self.previsto_fef2575_entry.get()
         es.valores['POS_FEF2575'] = self.pos_fef2575_entry.get()
-
-        output = es.main(valores=es.valores)
         
-        pyperclip.copy(output)
+        if all(value == '' for value in es.valores.values()):
+            tkinter.messagebox.showwarning('Erro', 'Por favor, insira o texto.')
             
-        if self.svcopia_espiro.get() == 1:
-                self.create_copy(es.valores, output)
+            logger.error('Nenhum texto inserido')
+            
+            check = False    
+            
+        if check:
+
+            output = es.main(valores=es.valores)
+            
+            pyperclip.copy(output)
                 
-        self.message()
-        
-        logger.success('Espirometria formatada com sucesso')
-        logger.info(f'Variáveis e resultados:\n\n{es.valores}\n\n{output}')
+            if self.svcopia_espiro.get() == 1:
+                    self.create_copy(es.valores, output)
+                    
+            self.message()
+            
+            logger.success('Espirometria formatada com sucesso')
+            logger.info(f'Variáveis e resultados:\n\n{es.valores}\n\n{output}')
     
     @logger.catch    
     def ckdepi_button_concluir(self):
