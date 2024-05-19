@@ -113,7 +113,7 @@ def refine (valores):
         list: Listas contendo cabeçalho e corpo da tabela
     """
     
-    topo = ['DATA:', valores['DATA'], 'ESPIROMETRIA', '#####']
+    topo = ['ESPIROMETRIA', valores['DATA'] if valores['DATA'] != 'NI' else 'SEM DATA', '#####', '#####']
     
     corpo=[   ['#####', 'PRÉ-BD', 'PREV.', 'PÓS-BD']+ [Merge.LEFT]*(len(topo)-4),
               ["CVF:", valores['PRE_CVF'], valores['CVF_PREVISTO'], valores['POS_CVF']]+ [Merge.LEFT]*(len(topo)-4),
