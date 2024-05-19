@@ -579,7 +579,8 @@ Insira seus exames no campo abaixo')
 @logger.catch        
 def start():
     due_date = time.localtime()
-    if due_date[1] < 6:
+    if due_date[1] <= 6 and due_date[0] <= 2024:
+        print(due_date[0])
         history_path= "copias"
         if not os.path.exists(history_path): os.makedirs(history_path)
         logger.success(f'Inicializado com sucesso. Usuário: {user}')
