@@ -1,76 +1,183 @@
-import PySimpleGUI as sg
-from table2ascii import table2ascii, Merge, PresetStyle
+from table2ascii import table2ascii, PresetStyle, Merge, Alignment
 
-demo = {'DATA': '01/12/22', 'CVF': '3.96', 'CVFPREVISTO': '3.22', 'POSCVF': '3.93', 'FEV1': '3.04',
-        'FEV1PREVISTO': '2.66', 'POSFEV1': '3.54', 'FEV1/CVF PREV': '76.8%', 'FEF2575': '2.7', 'POSFEF2575': '4.14', 0: False}
-# #valores = {'CVF': '', 'CVFPREVISTO': '', 'POSCVF': '', 'FEV1': '', 'FEV1PREVISTO': '', 'POSFEV1': '', 'FEF2575': '', 'POSFEF2575': '', 0: False}
+#demo = {'DATA': '01/12/22', 'CVF': '3.96', 'CVFPREVISTO': '3.22', 'POSCVF': '3.93', 'FEV1': '3.04','FEV1PREVISTO': '2.66', 'POSFEV1': '3.54', 'FEV1/CVF PREV': '76.8%', 'FEF2575': '2.7', 'POSFEF2575': '4.14', 0: False}
+
+demo = {'DATA': '01/12/22',
+           'PRE_CVF': '3.96',
+           'CVF_PREVISTO': '3.22',
+           'POS_CVF': '3.93',
+           'PRE_FEV1': '3.04',
+           'FEV1_PREVISTO': '2.66',
+           'POS_FEV1': '3.54',
+           'PRE_FEV1/CVF': '',
+           'FEV1/CVF_PREVISTO': '80',
+           'POS_FEV1/CVF': '',
+           'PRE_FEF2575': '2,7',
+           'FEF2575_PREVISTO': '',
+           'POS_FEF2575': '4,14',
+           'FEF2575/CVF': ''
+           }
+
+valores = {'DATA': '',
+           'PRE_CVF': '',
+           'CVF_PREVISTO': '',
+           'POS_CVF': '',
+           'PRE_FEV1': '',
+           'FEV1_PREVISTO': '',
+           'POS_FEV1': '',
+           'PRE_FEV1/CVF': '',
+           'FEV1/CVF_PREVISTO': '',
+           'POS_FEV1/CVF': '',
+           'PRE_FEF2575': '',
+           'FEF2575_PREVISTO': '',
+           'POS_FEF2575': '',
+           'FEF2575/CVF': ''
+           }
 # valores = demo
 
-
-def main():
-    global valores
-    # CVF FEV1 FEF 25-75% FEV 75
-
-    # Layout
-    sg.theme('Reddit')
-    layout = [
-        [sg.Text('Insira apenas números')],
-        [sg.Text('Data:'), sg.Input(key='DATA', size=10)],
-        [sg.Text('PRÉ CVF'), sg.Input(key='CVF', size=5), sg.Text('Previsto >'), sg.Input(
-            key='CVFPREVISTO', size=5), sg.Text('PÓS CVF'), sg.Input(key='POSCVF', size=5)],
-        [sg.Text('PRÉ FEV1'), sg.Input(key='FEV1', size=5), sg.Text('Previsto >'), sg.Input(
-            key='FEV1PREVISTO', size=5), sg.Text('PÓS FEV1'), sg.Input(key='POSFEV1', size=5)],
-        [sg.Text('Valor previsto para FEV1/CVF'),
-         sg.Input(key='FEV1/CVF PREV', size=5)],
-        [sg.Text('PRÉ FEF 25-75%'), sg.Input(key='FEF2575', size=5),
-         sg.Text('PÓS FEF 25-75%'), sg.Input(key='POSFEF2575', size=5)],
-        [sg.Checkbox('Laudar?')],
-        [sg.Button('Salvar')],
-        [sg.Text(key='-SAÍDA-')]
-    ]
-
-    # Janela
-    window = sg.Window('LaudAí - Espirometrias', layout,
-                       element_justification='c')
-
-    # Eventos
-    while True:
-        eventos, valores = window.read()  # type: ignore
-        if eventos == sg.WINDOW_CLOSED:
-            break
-        if eventos == 'Laudar?':
-            pass
-        if eventos == 'Salvar':
-            print(valores)
-            sg.easy_print(tabela())
-            print(tabela())
+# ---------------------------------- CODIGO FEITO ÀS PRESSAS, SUJEITO A ALTERAÇÕES ---------------------------------
 
 
-def tabela():
-    VF1CVFpre = round(
-        (float(valores['FEV1']) / float(valores['CVF'])) * 100, 2)
-    FEF2575CVFpre = round(
-        float(valores['FEF2575']) / float(valores['CVF']) * 100, 2)
+def process_values(valores):
+    """Testa os valores disponíveis um a um e tenta calcular valores relativos quando possível
+
+    Args:
+        valores (dict): Dicionário contendo entradas
+
+    Returns:
+        dict: dicionário modificado com valores relativos
+    """
+    
+    comma = {key: valores[key].replace(',', '.') for key in valores.keys()}
+
+    try:
+        comma['PRE_FEV1/CVF'] = f"{round((float(comma['PRE_FEV1']) / float(comma['PRE_CVF'])) * 100, 1)}%"
+    except:
+        ...
+        
+    try:
+        comma['POS_FEV1/CVF'] = f"{round((float(comma['POS_FEV1']) / float(comma['POS_CVF'])) * 100, 1)}%"
+    except:
+        ...
+        
+    try:  
+        comma['FEF2575/CVF'] = f"{round(float(comma['PRE_FEF2575']) / float(comma['PRE_CVF']) * 100, 1)}%"
+    except:
+        ...
+        
+    try:
+        comma['PRE_CVF'] = f"{comma['PRE_CVF']} ({round(float(comma['PRE_CVF']) / float(comma['CVF_PREVISTO']) * 100, 1)}%)"
+    except:
+        ...
+        
+    try:
+        comma['PRE_FEV1'] = f"{comma['PRE_FEV1']} ({round(float(comma['PRE_FEV1']) / float(comma['FEV1_PREVISTO']) * 100, 1)}%)"
+    except:
+        ...
+    
+    try:
+        comma['PRE_FEF2575'] = f"{comma['PRE_FEF2575']} ({round(float(comma['PRE_FEF2575']) / float(comma['FEF2575_PREVISTO']) * 100, 1)}%)"
+    except:
+        ...
+        
+    try:
+        comma['POS_CVF'] = f"{comma['POS_CVF']} ({round(float(comma['POS_CVF']) / float(comma['CVF_PREVISTO']) * 100, 1)}%)"
+    except:
+        ...
+        
+    try:
+        comma['POS_FEV1'] = f"{comma['POS_FEV1']} ({round(float(comma['POS_FEV1']) / float(comma['FEV1_PREVISTO']) * 100, 1)}%)"
+    except:
+        ...
+    
+    try:
+        comma['POS_FEF2575'] = f"{comma['POS_FEF2575']} ({round(float(comma['POS_FEF2575']) / float(comma['FEF2575_PREVISTO']) * 100, 1)}%)"
+    except:
+        ...
+        
+    fill_empty = {key: 'NI' for key in comma.keys() if comma[key] == ''}
+    resto = {chave: comma[chave] for chave in comma.keys() if chave not in fill_empty}
+    
+    fill_empty.update(resto)
+
+    return fill_empty
+    
+
+def refine (valores):
+    """Reorganiza dados brutos antes de enviar para geração de tabela
+
+    Args:
+        valores (dict): Dicionário contendo exames pré-processados
+
+    Returns:
+        list: Listas contendo cabeçalho e corpo da tabela
+    """
+    
+    topo = ['ESPIROMETRIA', valores['DATA'] if valores['DATA'] != 'NI' else 'SEM DATA', '#####', '#####']
+    
+    corpo=[   ['#####', 'PRÉ-BD', 'PREV.', 'PÓS-BD']+ [Merge.LEFT]*(len(topo)-4),
+              ["CVF:", valores['PRE_CVF'], valores['CVF_PREVISTO'], valores['POS_CVF']]+ [Merge.LEFT]*(len(topo)-4),
+              ["FEV1:", valores['PRE_FEV1'], valores['FEV1_PREVISTO'], valores['POS_FEV1']]+ [Merge.LEFT]*(len(topo)-4),
+              ['FEV1/CVF:', valores['PRE_FEV1/CVF'], valores['FEV1/CVF_PREVISTO'], valores['POS_FEV1/CVF']]+ [Merge.LEFT]*(len(topo)-4),
+              ['FEF 25-75%:', valores['PRE_FEF2575'], valores['FEF2575_PREVISTO'], valores['POS_FEF2575']]+ [Merge.LEFT]*(len(topo)-4),
+              ['FEF 25-75%/CVF:', valores['FEF2575/CVF'], '#####', '#####']+ [Merge.LEFT]*(len(topo)-4)]
+
+    per_line = [['filler'],
+                [valores['PRE_CVF'], valores['CVF_PREVISTO'], valores['POS_CVF']],
+                [valores['PRE_FEV1'], valores['FEV1_PREVISTO'], valores['POS_FEV1']],
+                [valores['PRE_FEV1/CVF'], valores['FEV1/CVF_PREVISTO'], valores['POS_FEV1/CVF']],
+                [valores['PRE_FEF2575'], valores['FEF2575_PREVISTO'], valores['POS_FEF2575']],
+                [valores['FEF2575/CVF']]]
+    
+    index = []
+    
+    for l, line in enumerate(per_line):
+        for v, variable in enumerate(line):
+            if variable != 'NI':
+                break
+            if v == len(line)-1 and variable == 'NI':
+                index.append(l)
+                
+    index.reverse()
+    
+    for r in index:
+        corpo.pop(r)
+    
+    return corpo, topo
+    
+def tabela(corpo, topo):
+    """Gera tabela
+
+    Args:
+        corpo (list): Corpo da tabela
+        topo (list): Cabeçalho da tabela
+
+    Returns:
+        str: Tabela
+    """
     tabela = table2ascii(
-        # header=['DATA:', valores['DATA'], 'ESPIROMETRIA', Merge.LEFT, Merge.LEFT, Merge.LEFT, Merge.LEFT],
-        body=[['DATA:', valores['DATA'], 'ESPIROMETRIA', Merge.LEFT, Merge.LEFT, Merge.LEFT, Merge.LEFT],
-              ["CVF:", "Pré:", valores['CVF'], 'Previsto: >',
-              valores['CVFPREVISTO'], "Pós:", valores['POSCVF']],
-              ["VEF1:", "Pré:", valores['FEV1'], 'Previsto: >',
-              valores['FEV1PREVISTO'], "Pós:", valores['POSFEV1']],
-              ['VF1/CVF:', 'Pré:', VF1CVFpre, 'Previsto: >',
-              valores['FEV1/CVF PREV'], Merge.LEFT, Merge.LEFT],
-              ['FEF 25-75%:', 'Pré:', valores['FEF2575'], 'Pós:',
-              valores['POSFEF2575'], Merge.LEFT, Merge.LEFT],
-              ['FEF 25-75%/CVF:', 'Pré:', FEF2575CVFpre, Merge.LEFT, Merge.LEFT, Merge.LEFT, Merge.LEFT]],
-        # footer=["SUM", "130", "140", "135", "130"],
-        # alignments=Alignment.LEFT
-        # number_alignments= Alignment.CENTER
+        header=topo,
+        body=corpo,
+        footer=['© Victor Matos, 2024'] + [Merge.LEFT]*(len(topo)-1),
         style=PresetStyle.minimalist
-    )
+    ).replace('─','=').replace('━','=')
     return tabela
 
+def main(valores):
+    """Inicia a subrotina a partir de uma amostra de dados
+
+    Args:
+        valores (dict): Entrada de exames do usuário
+
+    Returns:
+        str: Tabela
+    """
+    
+    processed = process_values(valores)
+    refined_corpo, refined_topo = refine(processed)
+    output = tabela(refined_corpo, refined_topo)
+    
+    return output
 
 if __name__ == '__main__':
-    main()
-    # print(tabela())
+    print(main(demo))

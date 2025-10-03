@@ -1,41 +1,159 @@
-# import yaml
-from table2ascii import *
-# from kdigo import *
-from variaveis import *
+from table2ascii import table2ascii, PresetStyle, Merge, Alignment
 import datefinder #Atentar para datas incompletas, não contempladas por essa biblioteca
 from datetime import datetime
-from fuzzywuzzy import process # tem que baixar isso aqui UserWarning: Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning   warnings.warn('Using slow pure-python SequenceMatcher. Install python-Levenshtein to remove this warning')
-import toolboxy as tb
+from rapidfuzz import process # fuzzywuzzy python-Levenshtein / rapidfuzz?
+from loguru import logger
 
-# Carregar valores de referência base para o programa comparar
-# def default():
-#     try:
-#         with open("vr.yml", "r", encoding='utf-8') as ymlfile:
-#             vr = yaml.safe_load(ymlfile)
-#     except:
-#         vr = default
-#         with open('vr.yml', 'w', encoding='utf-8') as ymlfile:
-#             yaml.dump(vr, ymlfile, allow_unicode=True)
+# Variaveis pré-declaradas
 
-#     # Salvar alterações de valores de referência
-#     def salvar(variavel=vr, nomedoarquivo='vr.yml'):
+lista_de_datas = []
+lista_remover = list()
+master = dict()
 
-#         with open(nomedoarquivo, 'w', encoding='utf-8') as ymlfile:
-#             yaml.dump(variavel, ymlfile, allow_unicode=True)
+espelho = { 'Hm': ['Hm'],
+            'Hb': ['Hb'],
+            'Ht': ['Ht'],
+            'VCM': ['VCM', 'VGM'],
+            'HCM': ['HCM', 'HGM'],
+            'CHCM': ['CHCM'],
+            'RDW': ['RDW'],
+            'Reticulócitos': ['Reticulócitos', 'Reti'],
+            'Leucócitos': ['Leucócitos', 'Leuco'],
+            'Blastos': ['Blastos'],
+            'Promielócitos': ['Promielócitos'],
+            'Mielócitos': ['Mielócitos'],
+            'Metamielócitos': ['Metamielócitos'],
+            'Bastões': ['Bastões', 'Bast'],
+            'Segmentados': ['Segmentados', 'Neut Segmentados', 'Neut', 'Neutrófilos'],
+            'Eosinófilos': ['Eosinófilos', 'Eos', 'Eosi'], 
+            'Linfócitos': ['Linfócitos', 'Linf', 'Linfo'],
+            'Monócitos': ['Monócitos', 'Mono', 'Mon'],
+            'Basófilos': ['Basófilos', 'Baso', 'Bas'],
+            'Linf._Atípicos': ['Atípicos'],
+            'Plaquetas': ['Plaquetas', 'Plaq', 'Pqt', 'plq', 'plt'],
+            'LDH': ['LDH', 'DHL'],
+            'VHS': ['VHS', 'Hemossedimentação', 'Hemosse'],
+            'PCR': ['PCR'],
+            'Colest._Total': ['CT', 'Colesterol Total', 'ColesT', 'Col total'],
+            'HDL': ['Hdl'],
+            'LDL': ['Ldl'],
+            'VLDL': ['Vldl'],
+            'Triglicérides': ['TGL', 'Triglicérides', 'Trigli', 'Tgc'],
+            'CPK': ['CPK'],
+            'CPK-MB': ['CPKMB', 'CKMB'],
+            'Troponina': ['Troponina', 'Tropo'],
+            'BNF': ['BNF'],
+            'Ferro': ['Ferro', 'Fe'],
+            'Ferritina': ['Ferritina'],
+            'Sat._Transf.(%)': ['Transferrina', 'Transfer'],
+            'TIBIC': ['TIBIC'],
+            'B12': ['B12'],
+            'Ác._Fólico': ['Fólico', 'Ácido Fólico'],
+            'Creatinina': ['Creatinina', 'Creat', 'Cr'],
+            'Uréia': ['Ureia'],
+            'Clearance': ['CKDEPI', 'Glomerular', 'Clearance'],
+            'Ácido_Úrico': ['Ácido Úrico', 'Úrico'],
+            'Sódio': ['Na', 'Sódio'],
+            'Potássio': ['K', 'Potássio'],
+            'Fósforo': ['P', 'Fósforo'],
+            'Cálcio_Sérico': ['Cálcio Sérico', 'Ca Sérico', 'Cálcio', 'Ca'],
+            'Cálcio_Ionizável': ['Cálcio Ionizável', 'Ca Ionizável'],
+            'Magnésio': ['Mg', 'Magnésio'],
+            'Cloro': ['Cl', 'Cloro'],
+            'Proteínas': ['PT', 'Proteínas', 'Ptn', 'Prot'],
+            'Albumina': ['Albumina', 'Alb', 'Albu'],
+            'Globulina': ['Globulina', 'Glob', 'Globu'],
+            'Relação_A/G': ['a/g', 'albumina/globulina', 'alb/glob'],
+            'Relação_A/C': ['a/c', 'albumina/creatinina', 'alb/creat'],
+            'Bili_Total': ['Bt', 'Bilirrubina Total'],
+            'Bili_Direta': ['Bd', 'Bilirrubina Direta'],
+            'Bili_Indireta': ['Bi', 'Bilirrubina Indireta'],
+            'TGO_(AST)': ['TGO', 'AST'],
+            'TGP_(ALT)': ['TGP', 'ALT'],
+            'Fosfatase_Alc.': ['FA', 'Fosfatase Alcalina'],
+            'Gama-GT': ['GGT', 'GamaGT'],
+            'Amilase': ['Amilase'],
+            'Lipase': ['Lipase'],
+            'INR': ['INR', 'RNI'],
+            'TTPA': ['TTPA'],
+            'Ratio': ['Ratio'],
+            'TAP': ['TAP'],
+            'TP': ['TP'],
+            'TS': ['TS', 'Sangramento'],
+            'TC': ['TC', 'Coagulação'],
+            'Glicemia_Jejum': ['GJ', 'Glicemia', 'Jejum', 'Glicemia de Jejum', 'Glicose'],
+            'Glicemia_Pós-P': ['GPP', 'Prandial'],
+            'Glicada(%)': ['Hemoglobina Glicada', 'HBA1C', 'Glicada', 'Hbglic'], 
+            'TSH': ['TSH'],
+            'T4_Livre': ['T4 Livre', 'T4L'],
+            'Tireoglobulina': ['Tireoglobulina', 'Tireoglob'],
+            'Vitamina_D': ['VitD', '25OHD', 'Vitamina D', 'VitD-Direta'],
+            'CA_15.3': ['CA15.3'],
+            'CA_19.9': ['CA19.9'],
+            'CA_125': ['CA125'],
+            'Alfa_Feto': ['Alfafeto','Feto', 'Afp', 'Alfafetoproteina'],
+            'Insulina': ['Insulina']
+            }
+
+merger = {'Sérico': ['Sérico', 'Serico', 'Seri'],
+          'Ionizável': ['Ionizável', 'Ion', 'Ionizavel'],
+          'CT': ['CT'],
+          'Total': ['Total'],
+          'Livre:': ['Livre'],
+          'Ureia': ['Ureia', 'Ur'],
+          'Úrico': ['Urico', 'Uric', 'Úrico'],
+          'Ultra': ['Ultra'],
+          'Urinário': ['Urinário', 'Urinária'],
+          'Direta': ['Direta', 'Dir', 'Dir'],
+          'Indireta': ['Indireta', 'Indi'],
+          'VitD': ['VitD']
+          }
 
 
-def boot():
-    user = ''#input('Insira os exames: ')
-    if user == '':
-        with open("demo.txt", "r", encoding='utf-8') as arquivo: #Trocar para demo.txt
-            raw = arquivo.read()
-    else:
-        raw = user
+def demo():
+    
+    raw = '''27/05/2022  Ca 9,5   Cl 0,3  K 4,7   Na 142    U 29  T4 livre 0,96   TSH 1,71
+
+Hb 11,3  Ht 36,9  VCM 86  HCM 26,3  CHCM 30,6  RDW 14,6  Leuco 7764  Seg 54  Eos 2  LInfo 36  Mono 7  Plaq 421700
+
+TTPA rel 1,1   TP  82%  INR 1,13   TGP 13   TGO 254   FA 596   Sat transf 33   PCR 4,5  (<5,0)
+
+Ptn 7,6  Alb 4,2  VitD 46,5  Ferritina 26,08  Vit B12 1097
+'''
+        
     return raw
+
+def clear_variables():
+    """Limpa as variáveis do programa a cada nova execução
+    """
+    global lista_de_datas, lista_remover, master
+    
+    lista_de_datas.clear()
+    lista_remover.clear()
+    master = {}
+    
+def add_text(fulltext):
+    """Certifica-se que haja texto antecedendo as datas para que a biblioteca de datas reconheça os valores
+    adequadamente.
+
+    Args:
+        fulltext (str): Texto original
+
+    Returns:
+        str: Texto com a string ' lab ' acrescentado a cada linha
+    """
+    
+    added = fulltext.splitlines()
+    
+    for _ in range(added.count('')):
+        added.remove('')
+    
+    return ' labVM '.join(added)
+        
 
 def preset(raw, merger = merger):
     """Essa função faz a primeira passagem de reconhecimento do texto em exames de mais de duas palavras,
-    remove caracteres especiais e retorna um texto reformulado.
+    remove caracteres especiais e retorna um texto reformulado. Além disso, prepara o texto para a execução do reconhecimento, removendo caracteres especiais e afins.
 
     Args:
         raw (str): Texto original
@@ -44,6 +162,7 @@ def preset(raw, merger = merger):
     Returns:
         str: Varíavel contendo texto reformulado 
     """
+    global lista_de_datas
     
     tokens = raw.split()
     merged = []
@@ -51,7 +170,14 @@ def preset(raw, merger = merger):
     # Limpa caracteres especiais e espaços vazios, deixa tudo capitalizado
     tokens = [elemento.capitalize() for elemento in tokens]
     for _, string in enumerate(tokens):
-        tokens[_] = string.strip(':()-,.*#|/%')
+        tokens[_] = string.strip(':;()-,.*#|/%><').replace('(', ' ').replace(')', ' ').replace(':', ' ').replace('<', ' ').replace('>', ' ')
+        
+    # BUG FIX - DO NOT REMOVE:
+    
+    datas = datefinder.find_dates(raw, source=True, strict=True, first='day')
+    for d in datas:  
+        tokens[tokens.index(d[1])] = tokens[tokens.index(d[1])].replace('.', '/').replace('-', '/')
+        lista_de_datas.append(d[1].replace('.', '/').replace('-', '/'))
     
     # Remove entradas vazias
     for _ in range(tokens.count('')):
@@ -66,7 +192,7 @@ def preset(raw, merger = merger):
         melhor_correspondecia = max(correspondencias.items(), key=lambda x: x[1][1])
         if melhor_correspondecia[1][1] > 80:
             merged.append(melhor_correspondecia[0])
-            if merged[len(merged)-2].replace('.', '').replace(',', '').isnumeric():
+            if merged[len(merged)-2].replace('.', '').replace(',', '').isnumeric() or merged[len(merged)-2] in lista_de_datas:
                 continue
             merged[len(merged)-2] = '-'.join(merged[len(merged)-2:])
             merged.pop()
@@ -126,25 +252,25 @@ def processar_datas(texto):
     """
     
     global lista_de_datas, lista_remover
-    
-    # Cria uma lista de datas
-    datas = datefinder.find_dates(texto, source=True, strict=True)
-    for d in datas:
-        lista_de_datas.append(d[1])
 
     texto = texto.split()
 
     # Listar palavras a serem removidas
     was_alpha = False
     for index, linha in enumerate(texto):
-        if is_word(linha) and was_alpha == False:
+        
+        if is_word(linha) and index == len(texto) - 1:
+            lista_remover.append(index)
+            if was_alpha:
+                lista_remover.append(index-1)
+        elif is_word(linha) and was_alpha == False:
             was_alpha = True
-        elif linha in lista_de_datas and was_alpha == True:
+        elif linha in lista_de_datas and was_alpha:
             lista_remover.append(index - 1)
             was_alpha = False
-        elif is_word(linha) and was_alpha == True:
+        elif is_word(linha) and was_alpha:
             lista_remover.append(index - 1)
-        elif was_alpha == True and index+1<len(texto) and linha.isnumeric() and texto[index+1].isnumeric() and not texto[index+2].isnumeric():
+        elif was_alpha == True and index+1<len(texto) and linha.replace(',', '').replace('.', '').isnumeric() and texto[index+1].replace(',', '').replace('.', '').isnumeric() and not texto[index+2].replace(',', '').replace('.', '').isnumeric():
             texto[index] = (texto[index], texto[index+1])
             lista_remover.append(index+1)
             was_alpha == False
@@ -153,7 +279,6 @@ def processar_datas(texto):
 
     texto_exames = texto 
     return texto_exames   
-
 
 def spliter(texto_exames):
     """Separa exames em um dicionário por data.
@@ -170,23 +295,14 @@ def spliter(texto_exames):
     
     master = {}
     
-    #Tá confuso, mas funciona
-    index = list()
-    for d in lista_de_datas:
-        index.append(texto_exames.index(d))
-    
-    #Lembrar de otimizar depois (Ele passa pelo mesmo número duas vezes)
+    # Indexa linhas cujos índices não estejam presentes na lista de palavras a remover
     for i, line in enumerate(texto_exames):
         if line in lista_de_datas:
             master[line] = list()
-            i = i+1
-            while i not in index:
-                if i not in lista_remover:
-                    master[line].append(texto_exames[i])
-                if i + 1 < len(texto_exames):
-                    i = i+1
-                else:
-                    break
+            current_date = line
+            continue
+        if i not in lista_remover:
+                master[current_date].append(texto_exames[i])
                 
     # Converter as chaves do dicionário para o formato de data
     datas_formatadas = {datetime.strptime(data, '%d/%m/%y' if len(data) == 8 else '%d/%m/%Y'): valor for data, valor in master.items()}
@@ -222,7 +338,10 @@ def tinder(master):
             exam_value = master[key][i+1] if i+1 < len(master[key]) else '-'
             if exam_name not in exams:
                 exams[exam_name] = ['-'] * len(master)
-            exams[exam_name][list(master.keys()).index(key)] = int(float(exam_value.replace(',', '.'))) if type(exam_value) == str and float(exam_value.replace(',', '.')) == int(float(exam_value.replace(',', '.'))) else float(exam_value.replace(',', '.')) if type(exam_value) == str else exam_value 
+            exams[exam_name][list(master.keys()).index(key)] = exam_value 
+                #     exams[exam_name][list(master.keys()).index(key)] = int(float(exam_value.replace(',', '.'))) \
+                # if type(exam_value) == str and float(exam_value.replace(',', '.')) == int(float(exam_value.replace(',', '.'))) else \
+                #     float(exam_value.replace(',', '.')) if type(exam_value)==str else exam_value 
 
     return exams
 
@@ -248,47 +367,21 @@ def sort(exams):
 
 
 def doc(sorted):
-    """Compara exames com seus valores de referência cadastrados
+    """Reorganiza o dicionário e converte em lista no formato para o corpo da tabela
 
     Args:
-        sorted (dict): Exames e valores a serem comparados
+        sorted (dict): Exames e valores
 
     Returns:
         list: Corpo da tabela
     """
-    
-    # print(sorted)
-    # Função responsável por comparar os exames com seus valores de referência cadastrados
-    high = '↑'
-    low = '↓'
-    
-    # Acrescenta os indicadores de alteração
-    
-    # for title in default.keys():
-    #     if title in sorted:
-    #         for index, value in enumerate(sorted[title]):
-    #             if type(value) == tuple: # Loop que verifica tuplas
-    #                 a, b = value
-    #                 percen = min(float(a), float(b))
-    #                 if percen > float(default[title][-1]):
-    #                     sorted[title][index] = str(sorted[title][index]) + high
-    #                 elif len(default[title]) > 1 and percen < float(default[title][0]):
-    #                     sorted[title][index] = str(sorted[title][index]) + low
-    #                 continue
-    #             if value != '-' and float(value) > float(default[title][-1]): # Loop que verifica outros exames
-    #                 sorted[title][index] = str(sorted[title][index]) + high
-    #             elif value != '-' and len(default[title]) > 1 and float(value) < float(default[title][0]):
-    #                 sorted[title][index] = str(sorted[title][index]) + low
-
     
     # Converte o dicionário de exames em uma lista de listas
     corpo = [[name] + values for name, values in sorted.items()]
     
     return corpo
 
-def trimmer(): 
-    ...
-    # Essa função vai deixar a apresentação mais bonitinha, deixar só a primeira letra maiúscula, retirar os _ e deixar na ordem que a gente quer
+
 
 def gerartabela(corpo, topo):
     """Gera a tabela final em ASCII.
@@ -301,19 +394,32 @@ def gerartabela(corpo, topo):
     tabela = table2ascii(
         header=topo,
         body=corpo,
-        # footer=["SUM", "130", "140", "135", "130"],
-        # alignments=Alignment.LEFT
-        # number_alignments= Alignment.CENTER
+        footer=['© Victor Matos, 2024'] + [Merge.LEFT]*(len(topo)-1),
+        alignments=Alignment.LEFT,
+        number_alignments= Alignment.LEFT,
         style=PresetStyle.minimalist #thin_thick  # minimalist
     )
-    print(tabela)
-
-def main():
-    """Função principal, executa programa.
     
+    output = tabela.replace('-    ', '#####').replace('─', '=').replace('━', '=')
+    return output
+
+def main(entry):
+    """Função principal, executa programa.
+
+    Args:
+        entry (str): Entrada de texto inicial
+
+    Returns:
+        str: Tabela gerada pelo programa
     """
     
-    raw = boot()
+    if entry == 'demo':
+        raw = demo()
+    else:
+        raw = entry
+        
+    clear_variables()
+    raw = add_text(raw)
     merged = preset(raw)
     texto = corretor(merged)
     texto_exames = processar_datas(texto)
@@ -321,14 +427,11 @@ def main():
     exams = tinder(master)
     sorted = sort(exams)
     corpo = doc(sorted)
-    gerartabela(corpo, topo)
-    #print(f"{raw} \n\n\n {merged} \n\n\n {texto} \n\n\n {master} \n\n\n {exams} \n\n\n {corpo}")
-    #print(master, sorted)
+    final = gerartabela(corpo, topo)
+    
+    return final
+    
     
 if __name__ == '__main__':
-    print(tb.elapsed_clocktime(main))
-    #spliter()
-    #processar_datas()
-    # Backup:
-    #tb.backup(file='main.py', output_path='backups/security_copies')
+    print(main('demo'))
     ...

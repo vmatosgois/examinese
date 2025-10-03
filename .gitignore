@@ -2,15 +2,25 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.vscode
 
 # C extensions
 *.so
 
+# Demo files
+debug.txt
+demo.txt
+
 # Distribution / packaging
 .Python
 build/
+HideMyCode/
 develop-eggs/
+output/
 dist/
+logs/
+copias/
+Testes/
 downloads/
 eggs/
 .eggs/
