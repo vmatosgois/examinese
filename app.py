@@ -12,11 +12,18 @@ import espiro as es
 import user
 from loguru import logger
 from PIL import Image
+import toolboxy
 
 ctk.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 ctk.set_default_color_theme("dark-blue")  # Themes: "blue" (standard), "green", "dark-blue"
 version = 'Piloto (beta v0.7.1) - VMG'
 user = user.user
+
+if user == 'Victor Matos':
+    dev = True
+else:
+    dev = False
+
 
 class App(ctk.CTk):
     def __init__(self):
@@ -549,7 +556,7 @@ Insira seus exames no campo abaixo')
             
             self.message()
             
-            logger.success(f'TFG calculado com sucesso\n{self.ckdepi_result.get()}')
+            logger.success(f'TFG calculado com sucesso\n{self.ckdepi_result.get(index1="0.0", index2="end-1c")}')
         else: 
             tkinter.messagebox.showwarning('Erro', 'Por favor, preencha todos os campos.')
             
@@ -579,8 +586,8 @@ Insira seus exames no campo abaixo')
 @logger.catch        
 def start():
     due_date = time.localtime()
-    if due_date[1] <= 6 and due_date[0] <= 2024:
-        print(due_date[0])
+    print(due_date)
+    if dev:
         history_path= "copias"
         if not os.path.exists(history_path): os.makedirs(history_path)
         logger.success(f'Inicializado com sucesso. Usuário: {user}')

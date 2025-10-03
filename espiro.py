@@ -12,9 +12,9 @@ demo = {'DATA': '01/12/22',
            'PRE_FEV1/CVF': '',
            'FEV1/CVF_PREVISTO': '80',
            'POS_FEV1/CVF': '',
-           'PRE_FEF2575': '',
+           'PRE_FEF2575': '2,7',
            'FEF2575_PREVISTO': '',
-           'POS_FEF2575': '',
+           'POS_FEF2575': '4,14',
            'FEF2575/CVF': ''
            }
 
@@ -180,4 +180,4 @@ def main(valores):
     return output
 
 if __name__ == '__main__':
-   print(main(demo))
+    print(main(demo))

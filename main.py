@@ -1,7 +1,7 @@
 from table2ascii import table2ascii, PresetStyle, Merge, Alignment
 import datefinder #Atentar para datas incompletas, não contempladas por essa biblioteca
 from datetime import datetime
-from fuzzywuzzy import process # python-Levenshtein / rapidfuzz?
+from rapidfuzz import process # fuzzywuzzy python-Levenshtein / rapidfuzz?
 from loguru import logger
 
 # Variaveis pré-declaradas
